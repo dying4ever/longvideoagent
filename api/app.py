@@ -9,6 +9,7 @@ import uuid
 from typing import Dict
 
 import config
+import model_registry
 from api import session_manager
 from api.schemas import AskRequest, SessionCreateRequest
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -34,6 +35,16 @@ _videos: Dict[str, str] = {}
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/models")
+def models():
+    return {"models": model_registry.get_models()}
+
+
+@app.get("/backend/status")
+def backend_status():
+    return model_registry.get_backend_status()
 
 
 @app.post("/videos")

@@ -681,3 +681,24 @@ input::placeholder {
     transition: none !important;
   }
 }
+
+/* model selector */
+.model-select {
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: var(--fs-small);
+  outline: none;
+  transition: border-color 150ms var(--ease-out);
+}
+
+.model-select:hover {
+  border-color: var(--border-strong);
+}
+
+.model-select option:disabled {
+  color: var(--text-dim);
+}

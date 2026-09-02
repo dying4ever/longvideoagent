@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as api from './api.js';
 import VideoPlayer from './components/VideoPlayer.jsx';
 import Chat from './components/Chat.jsx';
@@ -15,7 +15,15 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [stage, setStage] = useState(null);
+  const [models, setModels] = useState([]);
+  const [backendStatus, setBackendStatus] = useState(null);
+  const [selectedModel, setSelectedModel] = useState('qwen3-vl-8b-local');
   const videoRef = useRef(null);
+
+  useEffect(() => {
+    api.getModels().then((r) => setModels(r.models || [])).catch(() => {});
+    api.getBackendStatus().then((r) => setBackendStatus(r)).catch(() => {});
+  }, []);
 
   async function handleUpload(file) {
     setError(null);
@@ -82,6 +90,18 @@ export default function App() {
           <span>LongVideoAgent</span>
         </div>
         <div className="header-right">
+          <select
+            className="model-select"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            {models.map((m) => (
+              <option key={m.id} value={m.id} disabled={!m.available}>
+                {m.name}
+                {m.available ? '' : '（未配置）'}
+              </option>
+            ))}
+          </select>
           {sessionId && <span className="session-id">session {sessionId}</span>}
           {sessionId && (
             <button className="ghost" onClick={handleReset}>
@@ -114,6 +134,8 @@ export default function App() {
           messages={messages}
           trace={trace}
           memory={memory}
+          backendStatus={backendStatus}
+          sessionId={sessionId}
           onSeek={seek}
         />
       </section>

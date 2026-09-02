@@ -56,6 +56,17 @@ def test_health() -> None:
     print("[ok] GET /health")
 
 
+def test_models_and_status() -> None:
+    client = TestClient(app_module.app)
+    r = client.get("/models")
+    assert r.status_code == 200
+    assert any(m["available"] for m in r.json()["models"])
+    r = client.get("/backend/status")
+    assert r.status_code == 200
+    assert "runtime" in r.json()
+    print("[ok] GET /models + /backend/status")
+
+
 def test_video_upload() -> None:
     client = TestClient(app_module.app)
     r = client.post("/videos", files={"file": ("t.mp4", io.BytesIO(b"fake-video"), "video/mp4")})
@@ -94,6 +105,7 @@ def test_session_ask_memory_trace_reset() -> None:
 
 if __name__ == "__main__":
     test_health()
+    test_models_and_status()
     test_video_upload()
     test_session_ask_memory_trace_reset()
     print("ALL API TESTS PASSED")

@@ -5,9 +5,10 @@ const TABS = [
   { id: 'evidence', label: 'Evidence' },
   { id: 'trace', label: 'Trace' },
   { id: 'memory', label: 'Memory' },
+  { id: 'manage', label: 'Manage' },
 ];
 
-export default function Inspector({ activeTab, setActiveTab, messages, trace, memory, onSeek }) {
+export default function Inspector({ activeTab, setActiveTab, messages, trace, memory, backendStatus, sessionId, onSeek }) {
   const lastAgent = [...messages].reverse().find((m) => m.role === 'agent');
   return (
     <div className="inspector">
@@ -29,7 +30,29 @@ export default function Inspector({ activeTab, setActiveTab, messages, trace, me
         )}
         {activeTab === 'trace' && <TracePane trace={trace} onSeek={onSeek} />}
         {activeTab === 'memory' && <MemoryPane memory={memory} onSeek={onSeek} />}
+        {activeTab === 'manage' && (
+          <ManagePane backendStatus={backendStatus} sessionId={sessionId} />
+        )}
       </div>
+    </div>
+  );
+}
+
+function ManagePane({ backendStatus, sessionId }) {
+  return (
+    <div className="memory">
+      <Section title="Backend">
+        <Kv label="runtime" value={backendStatus?.runtime} />
+        <Kv label="model" value={backendStatus?.model} />
+        <Kv label="model loaded" value={backendStatus?.model_loaded ? 'yes' : 'no'} />
+      </Section>
+      <Section title="Cache">
+        <Kv label="memory dir" value={backendStatus?.memory_cache?.dir} />
+        <Kv label="cached memories" value={backendStatus?.memory_cache?.n_cached} />
+      </Section>
+      <Section title="Session">
+        <Kv label="session id" value={sessionId} />
+      </Section>
     </div>
   );
 }

@@ -36,6 +36,8 @@ export const getMemory = (sessionId) => get(`/sessions/${sessionId}/memory`);
 export const getTrace = (sessionId) => get(`/sessions/${sessionId}/trace`);
 export const resetSession = (sessionId) => post(`/sessions/${sessionId}/reset`, {});
 export const videoUrl = (videoId) => `${BASE}/videos/${videoId}`;
+export const getModels = () => get('/models');
+export const getBackendStatus = () => get('/backend/status');
 
 export function formatTime(seconds) {
   if (seconds == null) return '--:--';
