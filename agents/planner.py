@@ -26,6 +26,9 @@ def _memory_overview(video_memory: Dict[str, Any]) -> List[Dict[str, Any]]:
     ]
 
 
+_INSPECT_MAX_SECONDS = 120.0
+
+
 def _temporal_plan(question: str, state: Dict[str, Any], video_memory: Dict[str, Any]) -> Dict[str, Any]:
     duration = video_memory.get("duration", state.get("video_duration", 0.0))
     ver = verifier.verify_temporal_condition(
@@ -43,6 +46,10 @@ def _temporal_plan(question: str, state: Dict[str, Any], video_memory: Dict[str,
                 "search_range": None, "reason": ver["reason"]}
     if ver["missing_ranges"]:
         mr = ver["missing_ranges"][0]
+        if mr[1] - mr[0] > _INSPECT_MAX_SECONDS:
+            return {"action": "ground_video", "query": question,
+                    "search_range": {"start": mr[0], "end": mr[1]},
+                    "reason": f"范围过大，用 memory 检索: {ver['reason']}"}
         return {"action": "inspect_interval", "query": question,
                 "search_range": {"start": mr[0], "end": mr[1]}, "reason": ver["reason"]}
     return {"action": "verify_answer", "query": question, "search_range": None, "reason": ver["reason"]}

@@ -187,6 +187,20 @@ def test_planner_no_grounding_when_sufficient() -> None:
     print("[ok] verifier sufficient -> planner returns verify_answer (no more grounding)")
 
 
+def test_planner_large_range_uses_grounding() -> None:
+    state = {
+        "temporal_type": "REPEAT",
+        "event_occurrences": [{"timestamp": 6.0, "description": "乔治", "confidence": "high"}],
+        "searched_intervals": [],
+        "verified_absence_intervals": [],
+        "video_duration": 285.0,
+    }
+    plan = planner.plan_next_action("乔治后来有没有再次出现？", state, _mem())
+    assert plan["action"] == "ground_video"
+    assert plan["search_range"] == {"start": 6.0, "end": 285.0}
+    print("[ok] large missing range -> ground_video (avoid OOM)")
+
+
 if __name__ == "__main__":
     test_classify_first_last_always()
     test_classify_before_after()
@@ -207,4 +221,5 @@ if __name__ == "__main__":
     test_always_predicate_violation()
     test_planner_uses_missing_range()
     test_planner_no_grounding_when_sufficient()
+    test_planner_large_range_uses_grounding()
     print("ALL TEMPORAL REASONING TESTS PASSED")
