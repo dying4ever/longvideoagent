@@ -125,20 +125,20 @@ export default function App() {
         <section className="chat-pane">
           <Chat messages={messages} busy={busy} onAsk={handleAsk} onSeek={seek} disabled={!sessionId} />
         </section>
-      </div>
 
-      <section className="inspector-pane">
-        <Inspector
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          messages={messages}
-          trace={trace}
-          memory={memory}
-          backendStatus={backendStatus}
-          sessionId={sessionId}
-          onSeek={seek}
-        />
-      </section>
+        <section className="inspector-pane">
+          <Inspector
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            messages={messages}
+            trace={trace}
+            memory={memory}
+            backendStatus={backendStatus}
+            sessionId={sessionId}
+            onSeek={seek}
+          />
+        </section>
+      </div>
 
       {error && <div className="error-banner">{error}</div>}
     </div>

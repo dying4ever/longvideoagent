@@ -1,0 +1,24 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]: LongVideoAgent
+    - combobox [ref=e9]
+  - generic [ref=e10]:
+    - generic [ref=e13]:
+      - generic [ref=e14]: ▶
+      - paragraph [ref=e15]: Upload a video to start
+      - paragraph [ref=e16]: .mp4 · .mov · .mkv · .webm
+      - button "Choose video" [ref=e17] [cursor=pointer]
+    - generic [ref=e19]:
+      - generic [ref=e21]:
+        - paragraph [ref=e22]: Ask about the video.
+        - paragraph [ref=e23]: e.g. “乔治第一次什么时候出现？”
+      - generic [ref=e24]:
+        - textbox "Upload a video first" [disabled] [ref=e25]
+        - button "Send" [disabled] [ref=e26]
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - button "Evidence" [ref=e30] [cursor=pointer]
+        - button "Agent Process" [ref=e31] [cursor=pointer]
+        - button "Memory" [ref=e32] [cursor=pointer]
+        - button "Manage" [ref=e33] [cursor=pointer]
+      - generic [ref=e34]: No evidence yet.

@@ -3,7 +3,7 @@ import * as api from '../api.js';
 
 const TABS = [
   { id: 'evidence', label: 'Evidence' },
-  { id: 'trace', label: 'Trace' },
+  { id: 'process', label: 'Agent Process' },
   { id: 'memory', label: 'Memory' },
   { id: 'manage', label: 'Manage' },
 ];
@@ -28,7 +28,7 @@ export default function Inspector({ activeTab, setActiveTab, messages, trace, me
         {activeTab === 'evidence' && (
           <EvidencePane evidence={lastAgent?.evidence} onSeek={onSeek} />
         )}
-        {activeTab === 'trace' && <TracePane trace={trace} onSeek={onSeek} />}
+        {activeTab === 'process' && <ProcessPane trace={trace} onSeek={onSeek} />}
         {activeTab === 'memory' && <MemoryPane memory={memory} onSeek={onSeek} />}
         {activeTab === 'manage' && (
           <ManagePane backendStatus={backendStatus} sessionId={sessionId} />
@@ -73,23 +73,33 @@ function EvidencePane({ evidence, onSeek }) {
   );
 }
 
-function TracePane({ trace, onSeek }) {
+function ProcessPane({ trace, onSeek }) {
   if (!trace || trace.length === 0) {
     return <Empty text="No trace yet." />;
   }
   return (
-    <div className="trace-list">
+    <div className="pipeline">
       {trace.map((entry, i) => (
-        <div key={i} className="trace-row">
-          <span className="trace-step mono">{String(entry.step).padStart(2, '0')}</span>
-          <span className="trace-agent">{entry.agent}</span>
-          <span className="trace-summary">
-            {summarize(entry, onSeek)}
-          </span>
+        <div key={i} className="pipeline-step">
+          <div className={`pipeline-node ${statusOf(entry)}`}>
+            <span className="pipeline-dot" />
+          </div>
+          <div className="pipeline-content">
+            <span className="pipeline-agent">{entry.agent}</span>
+            <span className="pipeline-summary">{summarize(entry, onSeek)}</span>
+          </div>
         </div>
       ))}
     </div>
   );
+}
+
+function statusOf(entry) {
+  if (entry.agent === 'temporal_verifier' || entry.agent === 'critic') {
+    return entry.sufficient ? 'ok' : 'warn';
+  }
+  if (entry.agent === 'temporal_parser') return 'ok';
+  return 'neutral';
 }
 
 function summarize(entry, onSeek) {
