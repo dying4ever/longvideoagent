@@ -1,82 +1,150 @@
 # LongVideoAgent
 
-长视频交互式理解 Agent。完整闭环已实现：
+长视频交互式理解 Agent。完整闭环 + 时序验证 + 多轮记忆 + OpenClaw Skill + Web UI 已实现：
 
 ```
-长视频 → Video Memory → Planner → Grounding → Reasoning → Critic → (证据不足则 Replan) → Final Answer
+长视频
+  → 自适应事件切分 → 层次化 Video Memory (Global→Chapter→Event→Evidence)
+  → 多轮 Session (Conversation/Working Memory + 指代消解 + 时序验证)
+  → Planner → Grounding → Reasoning → Temporal Verifier → Critic → (Replan) → Answer
 ```
+
+---
 
 ## 目录结构
 
 ```
-├── model/                  # Qwen3-VL-8B-Instruct 模型（已下载）
+├── model/                  # Qwen3-VL-8B-Instruct（已下载）
 ├── data/
-│   ├── videos/             # 输入视频（test.mp4 等）
-│   └── memory/             # 生成的 Video Memory JSON
+│   ├── videos/             # 输入视频
+│   └── memory/             # Video Memory + 会话状态（内容哈希命名，自动缓存）
 ├── tools/
-│   ├── video_tool.py       # 视频读取/抽帧/裁剪（不依赖 VLM）
-│   └── vlm_tool.py         # Qwen3-VL 帧理解 + 文本生成（不依赖 video_tool）
+│   ├── video_tool.py       # 视频读取/抽帧(带时间戳)/裁剪
+│   └── vlm_tool.py         # Qwen3-VL 帧理解 + 文本生成（单例）
 ├── memory/
-│   └── video_memory.py     # 粗粒度 Video Memory
+│   ├── video_memory.py     # 自适应事件切分 + 层次化 Memory
+│   ├── conversation_memory.py  # Conversation + Working Memory
+│   └── context_resolver.py     # 指代消解
+├── temporal/
+│   ├── parser.py           # 时序意图 + target/reference_event 提取
+│   └── verifier.py         # FIRST/LAST/REPEAT/ALWAYS/BEFORE/AFTER 时间覆盖验证
 ├── agents/
-│   ├── grounding.py        # Visual Grounding
-│   ├── reasoning.py        # Visual Reasoning
+│   ├── grounding.py        # Visual Grounding（层次化检索）
+│   ├── reasoning.py        # Visual Reasoning（局部 occurrence）
 │   ├── planner.py          # Planner
-│   └── critic.py           # Visual Critic
+│   └── critic.py           # Visual Critic（规则+LLM）
+├── utils/
+│   ├── intervals.py        # 区间工具
+│   └── profiler.py         # 分阶段计时
 ├── agent_state.py          # 统一状态 + trace
 ├── agent.py                # Agent Loop 闭环
-├── tests/                  # 三套轻量测试
-├── config.py               # 路径 + 模型路径自动检测 + 推理参数
-├── demo_basic.py           # 基础链路 Demo
-├── demo_long_video.py      # Memory→Grounding→Reasoning Demo
-├── demo_agent.py           # 完整闭环 Demo
-├── log.md                  # 开发日志
-├── overview.md             # 项目梳理
-└── README.md
+├── session.py              # 多轮 Session
+├── openclaw_adapter.py     # OpenClaw 桥接（CLI）
+├── openclaw/skills/        # OpenClaw skill bundle
+├── api/                    # FastAPI backend
+├── frontend/               # React + Vite Web UI
+├── model_registry.py       # 模型注册表 + backend 状态
+├── tests/                  # 8 套轻量测试
+├── config.py               # 路径 + 模型路径检测 + 参数
+├── run.sh                  # 一键启动前后端
+├── demo_basic.py / demo_long_video.py / demo_agent.py / demo_chat.py / demo_profile.py
+├── log.md / overview.md / README.md
 ```
+
+---
 
 ## 环境
 
-使用现有 Conda 环境 `zjx_openvla`（Python 3.10, torch 2.10.0+cu128, CUDA 12.8）。
-
-```bash
-conda activate zjx_openvla
-```
-
-## 模型路径
-
-- 自动检测 `<项目根>/model/`。
-- 也可用环境变量覆盖：`export LONGVIDEO_MODEL_PATH=/path/to/model`。
-
-## 运行
+- Conda 环境：`zjx_openvla`（Python 3.10, torch 2.10.0+cu128, CUDA 12.8）
+- GPU：2 × RTX 5090（各 32GB）
+- 前端：Node 22（nvm）+ Vite
 
 ```bash
 conda activate zjx_openvla
 cd /mnt/sda/zjx_space/agent
-
-# 测试（无需模型，三套）
-python tests/test_basic_pipeline.py
-python tests/test_long_video.py
-python tests/test_agent_loop.py
-
-# 完整闭环 QA（需要模型）
-python demo_agent.py --video data/videos/test.mp4 \
-    --question "乔治第一次什么时候出现？"
-
-# Memory→Grounding→Reasoning（无闭环）
-python demo_long_video.py --video data/videos/test.mp4 \
-    --question "这段视频里发生了什么？"
-
-# 基础链路
-python demo_basic.py --video data/videos/test.mp4 --start 0 --end 10 --interval 2 \
-    --question "这段视频里发生了什么？"
 ```
+
+模型路径：自动检测 `<项目根>/model/`，或用 `export LONGVIDEO_MODEL_PATH=/path/to/model` 覆盖。
+
+---
+
+## 使用方法
+
+### 1. Web UI（推荐，交互式）
+
+```bash
+./run.sh          # 一键启动后端(:8123) + 前端(:5173)
+# 浏览器打开 http://localhost:5173
+```
+
+流程：上传视频 → 构建/加载 Memory → 多轮提问（支持「他/她」指代消解、first/last/repeat/always 时序问答）→ 点击 Evidence 时间戳跳转视频 → 查看 Agent Process 管道 / Memory / Manage。
+
+> 后端首次加载模型 + 构建 Memory 约 60s；同视频重上传会自动复用缓存（秒开）。
+
+### 2. CLI 多轮对话
+
+```bash
+python demo_chat.py --video data/videos/test.mp4
+# 命令: /memory(看记忆) /trace(看上轮trace) /reset /quit
+```
+
+### 3. CLI 单次问答（OpenClaw adapter，跨调用复用会话）
+
+```bash
+python openclaw_adapter.py --video data/videos/test.mp4 --question "乔治第一次什么时候出现？"
+python openclaw_adapter.py --video data/videos/test.mp4 --question "他出现之后做了什么？"
+```
+
+### 4. 完整闭环 Demo（单轮）
+
+```bash
+python demo_agent.py --video data/videos/test.mp4 --question "乔治第一次什么时候出现？"
+```
+
+### 5. 性能 Profiling
+
+```bash
+python demo_profile.py --video data/videos/test.mp4
+# 输出分阶段耗时（model_load/event_segmentation/grounding/reasoning/critic）+ VLM 调用数 + 帧数
+```
+
+### 6. 测试（无需模型，8 套）
+
+```bash
+for t in tests/test_*.py; do python "$t"; done
+```
+
+### 7. OpenClaw Skill
+
+```bash
+cd openclaw-cli
+./node_modules/.bin/openclaw skills list          # 确认 long-video-agent 被发现
+./node_modules/.bin/openclaw agent --local -m "分析视频 /mnt/sda/zjx_space/agent/data/videos/test.mp4：乔治第一次什么时候出现？"
+```
+
+> OpenClaw 通过 skill → `openclaw_adapter.py` CLI → `LongVideoAgentSession` → Qwen3-VL 运行。
+> 需 Node 22（nvm）已装 openclaw（`openclaw-cli/`），模型用 DeepSeek API（`DEEPSEEK_API_KEY`）。
+
+---
+
+## 支持的能力
+
+| 能力 | 说明 |
+|---|---|
+| 时序问答 | 第一次/最后一次/再次/之前/之后/一直（`Temporal Verifier` 规则覆盖验证） |
+| 多轮交互 | 「他/她/它」指代消解 + 复用已确认事实/时间戳/occurrence |
+| 自适应事件切分 | 观察窗口内 VLM 检测自适应事件边界（非固定窗口） |
+| 层次化 Memory | Global → Chapter → Event → Evidence |
+| 模型选择 | Qwen3-VL-8B Local（available）；Qwen/OpenAI/Gemini API（未配置） |
+| Agent Trace | Planner→Grounding→Reasoning→Verifier→Critic 完整决策管道 |
+| 缓存 | 内容哈希 Memory，同视频重上传复用 |
+
+---
 
 ## 依赖
 
-torch / transformers / accelerate / qwen-vl-utils / opencv-python / Pillow。
+Python：torch / transformers / accelerate / qwen-vl-utils / opencv-python / Pillow / fastapi / uvicorn。
+前端：React 18 + Vite 5（Node 22）。
 
-> 版本说明：Qwen3-VL 需要 `transformers >= 4.51`。当前 `zjx_openvla` 已升级到
-> `transformers 4.57.6` + `tokenizers 0.22.2`（torch 2.10.0+cu128 保持不变）。
-> 注意 openvla 0.0.3 原本 pin `transformers==4.40.1`，升级后如需继续用 OpenVLA
-> 请单独核对其运行环境。
+> 版本说明：Qwen3-VL 需 `transformers >= 4.51`，当前 `zjx_openvla` 已升到 `4.57.6`。
+> openvla 0.0.3 原本 pin `transformers==4.40.1`，如需继续用 OpenVLA 请单独核对环境。

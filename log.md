@@ -210,3 +210,43 @@ Question → Planner → Grounding → Reasoning → Critic → (证据不足) R
 2. 跨段时间推理有缺陷：不同段各自声称「首次」，产生矛盾（靠最终综合兜底纠正）。
 3. Planner 偶发重复 ground（已用「已搜区间过滤」缓解）。
 4. 最终综合的「取最早时间戳」是写死在 prompt 的，尚未覆盖「最后一次/是否一直」等其他时序问题。
+
+---
+
+## 十二、阶段四：Temporal Reasoning/Verification（FIRST/LAST 全局时间覆盖）
+
+- 新增 `temporal/parser.py`（时序意图分类）+ `temporal/verifier.py`（FIRST/LAST/REPEAT/ALWAYS 前缀/后缀覆盖验证）+ `utils/intervals.py`。
+- Reasoning 改为只报局部 occurrence（不声称全局 first/last）；Critic 改为规则+LLM；Planner 时序类型走确定性。
+- 解决「6s/78s/168s 多次声称首次」冲突，FIRST/LAST 正常 finished。
+- 修复：大范围时序搜索用 ground_video 防 OOM（inspect 93 帧爆显存）、config 统一 expandable_segments。
+
+## 十三、阶段五：多轮交互（Conversation/Working Memory + 指代消解）
+
+- 新增 `memory/conversation_memory.py`（ConversationMemory + WorkingMemory）、`memory/context_resolver.py`（他/她/它消解）、`session.py`（LongVideoAgentSession）。
+- `temporal/parser.py` 加 target/reference_event 提取；`memory/video_memory.py` 加 global_summary + chapters 层次化。
+- 多轮复用：Q2「他」→乔治 + 复用 6s reference；Q3 REPEAT 复用 occurrence 种子。
+
+## 十四、阶段六：UI/集成（OpenClaw + FastAPI + React UI）
+
+- OpenClaw skill bundle + `openclaw_adapter.py` CLI。
+- FastAPI backend（`api/`）+ React Web UI（`frontend/`）+ `run.sh` 一键启动。
+- 依赖：fastapi/uvicorn/python-multipart/httpx2；Node 22（nvm）。
+
+## 十五、阶段七：P0 修复（Gap Audit 后）
+
+- **P0-1 Adaptive Event Segmentation**：`segment_events` 观察窗口内 VLM 检测自适应事件边界 + carry 跨窗。实测 21 事件全非 60s 整数倍。
+- **P0-2 OpenClaw Runtime**：openclaw 装到 `openclaw-cli/`，`skills list` 发现、agent 真实调 skill→CLI→Qwen3-VL（RUNTIME/MULTITURN VERIFIED）。
+
+## 十六、阶段八：P1 优化
+
+- **Cache**：`video_fingerprint` 内容哈希 memory 路径 + MEMORY_VERSION，同视频重上传 0s 复用。
+- **Performance Profiling**：`utils/profiler.py` + `demo_profile.py`，分阶段耗时。
+- **Semantic Hallucination**：reasoning 接地约束 + BEFORE/AFTER 答案从 evidence 派生。
+- **Hierarchical Retrieval**：chapter 选择改 LLM 语义判断。
+- **Manage + Model Selector**：`model_registry.py` + `/models` + `/backend/status` + 前端选择器。
+
+## 十七、阶段九：P2 UI（四层架构 + Liquid Glass）
+
+- 布局改三列（Video/Chat/Inspector），Inspector 四 tab（Evidence/Agent Process 管道/Memory/Manage）。
+- Liquid Glass：backdrop-filter 半透明材质（遵循 apple-design skill）。
+- 模型选择器诚实标注（Local available，API 未配置 disabled）。
