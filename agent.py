@@ -1,8 +1,8 @@
-"""Agent loop: Planner -> Grounding -> Reasoning -> Critic -> (Replan) -> Answer.
+"""Agent loop: Planner -> Grounding -> Reasoning -> Temporal Verifier -> Critic -> Answer.
 
-Runs a closed loop over a question, accumulating evidence across iterations,
-using the Critic to decide when the evidence is sufficient, and the Planner to
-re-scope the search when it is not.
+For temporal questions (first/last/repeat/always/...), the loop drives
+occurrence collection + temporal coverage verification with pure-Python rules,
+so it terminates on verifiable coverage rather than max_iterations.
 """
 from __future__ import annotations
 
@@ -11,11 +11,13 @@ from typing import Any, Dict, List
 
 from agent_state import AgentState
 from agents import critic, grounding, planner, reasoning
+from temporal import parser as temporal_parser
+from temporal import verifier as temporal_verifier
+from temporal.parser import FIRST, LAST, NORMAL, REPEAT, ALWAYS
 from tools import vlm_tool
 
 
 def _valid_range(sr: Any, duration: float) -> Dict[str, float]:
-    """Clamp a search range into [0, duration]."""
     if not isinstance(sr, dict):
         return {"start": 0.0, "end": duration}
     try:
@@ -35,10 +37,59 @@ def _is_searched(start: float, end: float, searched: List[Dict[str, float]]) -> 
     return iv in searched
 
 
+def _update_occurrences(state: AgentState, result: Dict[str, Any], start: float, end: float) -> None:
+    state.add_searched_interval(start, end)
+    occurrences = result.get("occurrences", [])
+    state.add_occurrences(occurrences)
+    if not occurrences:
+        state.add_verified_absence(start, end)
+    state.add_evidence(result.get("evidence", []))
+    state.reasoning_history.append({"interval": [start, end], "result": result})
+    state.current_answer = result.get("answer")
+
+
+def _trace_verifier(state: AgentState, duration: float) -> Dict[str, Any]:
+    ver = temporal_verifier.verify_temporal_condition(
+        state.temporal_type, state.event_occurrences,
+        state.searched_intervals, state.verified_absence_intervals, duration,
+    )
+    state.add_trace(
+        "temporal_verifier", sufficient=ver.get("sufficient"),
+        candidate_timestamp=ver.get("candidate_timestamp"),
+        missing_ranges=ver.get("missing_ranges"),
+        reason=ver.get("reason"),
+    )
+    return ver
+
+
+def _temporal_answer(ttype: str, ver: Dict[str, Any]):
+    if ttype == FIRST and ver.get("candidate_timestamp") is not None:
+        return f"首次出现时间约在 {ver['candidate_timestamp']}s"
+    if ttype == LAST and ver.get("candidate_timestamp") is not None:
+        return f"最后一次出现约在 {ver['candidate_timestamp']}s"
+    if ttype == REPEAT:
+        return "是（存在多次独立出现）" if ver.get("answer") else "否（未发现重复出现）"
+    if ttype == ALWAYS:
+        return "否（存在反例）" if ver.get("answer") is False else "是（未发现反例）"
+    return None
+
+
 def _run_critic(state: AgentState, question: str, duration: float) -> None:
+    answer = state.current_answer
+    if state.temporal_type != NORMAL:
+        ver = temporal_verifier.verify_temporal_condition(
+            state.temporal_type, state.event_occurrences,
+            state.searched_intervals, state.verified_absence_intervals, duration,
+        )
+        tmp = _temporal_answer(state.temporal_type, ver)
+        if tmp is not None:
+            answer = tmp
     c = critic.critique_answer(
-        question, state.current_answer, state.evidence,
+        question, answer, state.evidence,
         state.searched_intervals, duration,
+        temporal_type=state.temporal_type,
+        occurrences=state.event_occurrences,
+        verified_absence=state.verified_absence_intervals,
     )
     state.critic_feedback = c
     state.add_trace(
@@ -68,33 +119,33 @@ def _build_synthesis_prompt(
         lines.append(f"  {ev['timestamp']}s: {ev['description']}")
     lines += [
         "",
-        "Instructions:",
-        "1. Use the evidence timestamps to answer temporal questions.",
-        "2. For 'first / earliest / first time' questions, report the EARLIEST timestamp where the subject clearly appears.",
-        "3. If different observations claim different 'first' times, trust the earliest timestamp.",
-        "4. Do NOT invent a time that is not in the evidence.",
-        "5. Return ONLY valid JSON matching this schema:",
+        "Return ONLY valid JSON matching this schema:",
         json.dumps({"answer": "...", "confidence": "high|medium|low"}, ensure_ascii=False),
     ]
     return "\n".join(lines)
 
 
-def _final_synthesis(
-    question: str,
-    reasoning_history: List[Dict[str, Any]],
-    evidence: List[Dict[str, Any]],
-    current_answer: Any,
-) -> str:
-    if not reasoning_history:
-        return current_answer or "无法回答（没有获得任何有效画面）"
-    if len(reasoning_history) == 1:
-        return reasoning_history[0].get("result", {}).get("answer", current_answer or "")
+def _build_final_answer(state: AgentState, question: str) -> None:
+    ver = temporal_verifier.verify_temporal_condition(
+        state.temporal_type, state.event_occurrences,
+        state.searched_intervals, state.verified_absence_intervals,
+        state.video_duration or 0.0,
+    )
+    tmp = _temporal_answer(state.temporal_type, ver)
+    if tmp is not None:
+        state.current_answer = tmp
+        if ver.get("candidate_timestamp") is not None:
+            state.final_timestamp = ver["candidate_timestamp"]
+        return
 
-    model = vlm_tool.load_model()
-    prompt = _build_synthesis_prompt(question, reasoning_history, evidence)
-    raw = vlm_tool.generate_text(prompt, model=model.model, processor=model.processor)
-    synth = vlm_tool._extract_json(raw)
-    return synth.get("answer", current_answer or "")
+    if len(state.reasoning_history) == 1:
+        state.current_answer = state.reasoning_history[0].get("result", {}).get("answer", "无法回答")
+    elif state.reasoning_history:
+        model = vlm_tool.load_model()
+        prompt = _build_synthesis_prompt(question, state.reasoning_history, state.evidence)
+        raw = vlm_tool.generate_text(prompt, model=model.model, processor=model.processor)
+        synth = vlm_tool._extract_json(raw)
+        state.current_answer = synth.get("answer", state.current_answer or "无法回答")
 
 
 def run_agent(
@@ -108,6 +159,10 @@ def run_agent(
     """Run the closed-loop QA agent and return the final serialized state."""
     duration = float(video_memory.get("duration", 0.0))
     state = AgentState(question, max_iterations=max_iterations, video_duration=duration)
+
+    parsed = temporal_parser.parse_temporal_query(question)
+    state.temporal_type = parsed["type"]
+    state.add_trace("temporal_parser", type=parsed["type"], target=parsed.get("target"))
 
     while state.iteration < state.max_iterations:
         state.iteration += 1
@@ -144,17 +199,13 @@ def run_agent(
                 result = reasoning.reason_over_candidates(
                     video_path, question, [cand], fine_interval=fine_interval
                 )
-                state.add_searched_interval(cand["start"], cand["end"])
-                state.add_evidence(result.get("evidence", []))
-                state.reasoning_history.append(
-                    {"interval": [cand["start"], cand["end"]], "result": result}
-                )
-                state.current_answer = result.get("answer")
+                _update_occurrences(state, result, cand["start"], cand["end"])
                 state.add_trace(
                     "reasoning", interval=[cand["start"], cand["end"]],
                     answer=result.get("answer"),
-                    evidence_count=len(result.get("evidence", [])),
+                    occurrences=result.get("occurrences"),
                 )
+            _trace_verifier(state, duration)
 
         elif action == "inspect_interval":
             sr = _valid_range(plan.get("search_range"), duration)
@@ -168,17 +219,13 @@ def run_agent(
                 video_path, question, [{"start": sr["start"], "end": sr["end"]}],
                 fine_interval=fine_interval,
             )
-            state.add_searched_interval(sr["start"], sr["end"])
-            state.add_evidence(result.get("evidence", []))
-            state.reasoning_history.append(
-                {"interval": [sr["start"], sr["end"]], "result": result}
-            )
-            state.current_answer = result.get("answer")
+            _update_occurrences(state, result, sr["start"], sr["end"])
             state.add_trace(
                 "reasoning", interval=[sr["start"], sr["end"]],
                 answer=result.get("answer"),
-                evidence_count=len(result.get("evidence", [])),
+                occurrences=result.get("occurrences"),
             )
+            _trace_verifier(state, duration)
 
         elif action == "verify_answer":
             _run_critic(state, question, duration)
@@ -192,9 +239,5 @@ def run_agent(
     else:
         state.status = "max_iterations_reached"
 
-    if state.reasoning_history:
-        state.current_answer = _final_synthesis(
-            question, state.reasoning_history, state.evidence, state.current_answer
-        )
-
+    _build_final_answer(state, question)
     return state.to_dict()

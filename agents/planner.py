@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List
 
+from temporal import verifier
+from temporal.parser import NORMAL
 from tools import vlm_tool
 
 VALID_ACTIONS = ("ground_video", "inspect_interval", "verify_answer", "finish")
@@ -22,6 +24,28 @@ def _memory_overview(video_memory: Dict[str, Any]) -> List[Dict[str, Any]]:
         {"start": s["start"], "end": s["end"], "summary": s.get("summary", "")}
         for s in segs[:_MAX_MEMORY_SUMMARY]
     ]
+
+
+def _temporal_plan(question: str, state: Dict[str, Any], video_memory: Dict[str, Any]) -> Dict[str, Any]:
+    duration = video_memory.get("duration", state.get("video_duration", 0.0))
+    ver = verifier.verify_temporal_condition(
+        state.get("temporal_type", NORMAL),
+        state.get("event_occurrences", []),
+        state.get("searched_intervals", []),
+        state.get("verified_absence_intervals", []),
+        duration,
+    )
+    if not state.get("event_occurrences"):
+        return {"action": "ground_video", "query": question,
+                "search_range": {"start": 0.0, "end": duration}, "reason": ver["reason"]}
+    if ver["sufficient"]:
+        return {"action": "verify_answer", "query": question,
+                "search_range": None, "reason": ver["reason"]}
+    if ver["missing_ranges"]:
+        mr = ver["missing_ranges"][0]
+        return {"action": "inspect_interval", "query": question,
+                "search_range": {"start": mr[0], "end": mr[1]}, "reason": ver["reason"]}
+    return {"action": "verify_answer", "query": question, "search_range": None, "reason": ver["reason"]}
 
 
 def _build_planner_prompt(
@@ -83,6 +107,9 @@ def plan_next_action(
     video_memory: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Return the next action dict: {action, query, search_range, reason}."""
+    if state.get("temporal_type", NORMAL) != NORMAL:
+        return _temporal_plan(question, state, video_memory)
+
     model = vlm_tool.load_model()
     prompt = _build_planner_prompt(question, state, video_memory)
     raw = vlm_tool.generate_text(prompt, model=model.model, processor=model.processor)

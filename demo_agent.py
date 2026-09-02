@@ -61,6 +61,15 @@ def main() -> int:
             print(f"[Critic] step {entry['step']}")
             print(f"  Sufficient: {entry['sufficient']}")
             print(f"  Reason: {entry['reason']}")
+        elif agent_name == "temporal_parser":
+            print(f"[TemporalParser] step {entry['step']}")
+            print(f"  Type: {entry.get('type')}")
+        elif agent_name == "temporal_verifier":
+            print(f"[TemporalVerifier] step {entry['step']}")
+            print(f"  Sufficient: {entry.get('sufficient')}")
+            print(f"  Candidate: {entry.get('candidate_timestamp')}")
+            if entry.get("missing_ranges"):
+                print(f"  Missing: {entry.get('missing_ranges')}")
         print()
 
     print("=" * 60)

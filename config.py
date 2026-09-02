@@ -49,3 +49,8 @@ DEVICE_MAP = "auto"       # single-GPU friendly; "cuda:0" forces one GPU
 DTYPE = "auto"            # Qwen3-VL uses `dtype` (not `torch_dtype`); "auto" derives bf16 from weights
 MAX_NEW_TOKENS = 1024
 DEFAULT_INTERVAL = 2.0
+
+# --- Temporal reasoning ------------------------------------------------------
+# Occurrences closer than this (seconds) are merged into one occurrence cluster,
+# so adjacent frames (78s/80s/82s) are not counted as independent events.
+TEMPORAL_MERGE_THRESHOLD = 5.0

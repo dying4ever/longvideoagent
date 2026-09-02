@@ -21,6 +21,10 @@ class AgentState:
         self.critic_feedback: Optional[Dict[str, Any]] = None
         self.status: str = "running"
         self.trace: List[Dict[str, Any]] = []
+        self.temporal_type: str = "NORMAL"
+        self.event_occurrences: List[Dict[str, Any]] = []
+        self.verified_absence_intervals: List[Dict[str, float]] = []
+        self.final_timestamp: Optional[float] = None
         self._step = 0
 
     def _next_step(self) -> int:
@@ -48,6 +52,26 @@ class AgentState:
                 self.evidence.append(item)
         self.evidence.sort(key=lambda e: e["timestamp"])
 
+    def add_occurrences(self, occurrences: List[Dict[str, Any]]) -> None:
+        for occ in occurrences:
+            try:
+                ts = round(float(occ["timestamp"]), 3)
+            except (KeyError, TypeError, ValueError):
+                continue
+            item = {
+                "timestamp": ts,
+                "description": str(occ.get("description", "")),
+                "confidence": str(occ.get("confidence", "medium")),
+            }
+            if item not in self.event_occurrences:
+                self.event_occurrences.append(item)
+        self.event_occurrences.sort(key=lambda o: o["timestamp"])
+
+    def add_verified_absence(self, start: float, end: float) -> None:
+        iv = {"start": round(float(start), 3), "end": round(float(end), 3)}
+        if iv not in self.verified_absence_intervals:
+            self.verified_absence_intervals.append(iv)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "question": self.question,
@@ -62,4 +86,8 @@ class AgentState:
             "critic_feedback": self.critic_feedback,
             "status": self.status,
             "trace": self.trace,
+            "temporal_type": self.temporal_type,
+            "event_occurrences": self.event_occurrences,
+            "verified_absence_intervals": self.verified_absence_intervals,
+            "final_timestamp": self.final_timestamp,
         }

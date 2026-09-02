@@ -100,8 +100,8 @@ def test_loop_sufficient_finish() -> None:
     r = _run_loop(plans, critics, reason_res, cands)
 
     assert r["status"] == "finished"
-    agents = [e["agent"] for e in r["trace"]]
-    assert agents == ["planner", "grounding", "reasoning", "planner", "critic"]
+    core_agents = [e["agent"] for e in r["trace"] if e["agent"] not in ("temporal_parser", "temporal_verifier")]
+    assert core_agents == ["planner", "grounding", "reasoning", "planner", "critic"]
     assert r["searched_intervals"] == [{"start": 60.0, "end": 120.0}]
     print("[ok] loop finishes when critic says sufficient")
 

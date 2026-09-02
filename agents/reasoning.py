@@ -1,9 +1,9 @@
-"""Visual Reasoning: densely observe candidate intervals to answer a question.
+"""Visual Reasoning: observe a LOCAL interval and report local occurrences.
 
-Memory only locates candidate intervals; reasoning re-reads the ORIGINAL video
-frames inside each candidate at a finer interval, collects timestamped visual
-evidence, and synthesizes a final answer. It never trusts the memory summary
-for the actual answer.
+Reasoning only answers "what happened in THIS interval and when" — it must
+never claim whether an event is the first/last/only/always occurrence across
+the whole video. Global temporal semantics are handled by the Temporal
+Verifier, not by this module.
 """
 from __future__ import annotations
 
@@ -15,9 +15,8 @@ from tools import video_tool, vlm_tool
 
 def _build_reasoning_prompt(question: str, frames) -> str:
     lines = [
-        "You are answering a question about a video by closely observing the frames.",
-        "Each frame has an EXPLICIT timestamp (in seconds) provided by the program;",
-        "it is the REAL frame time, not something you should infer.",
+        "You are observing a LOCAL time interval of a video (NOT the whole video).",
+        "Each frame has an EXPLICIT timestamp (in seconds) provided by the program; it is the REAL frame time.",
         "",
         f"Question: {question}",
         "",
@@ -29,39 +28,18 @@ def _build_reasoning_prompt(question: str, frames) -> str:
         "",
         "Instructions:",
         "1. Observe the frames carefully in chronological order.",
-        "2. Use the provided timestamps to locate when events happen.",
-        "3. Do NOT fabricate events you cannot see in the frames.",
-        "4. You only see a SUBSET of the video; do NOT claim something is the 'first/last/only' occurrence unless the evidence clearly supports it.",
-        "5. If you cannot determine the answer, say so explicitly and set confidence to low.",
+        "2. Report the LOCAL occurrences of the subject/event with their timestamps.",
+        "3. You ONLY see this local interval. Do NOT claim whether this is the FIRST, LAST, ONLY, or EVERY occurrence across the WHOLE video.",
+        "4. Do NOT fabricate events you cannot see.",
+        "5. If the subject is not observed in this interval, return an empty occurrences list.",
         "6. Return ONLY valid JSON matching this schema:",
         json.dumps({
-            "answer": "your answer, or '不确定' if unknown",
-            "confidence": "high|medium|low",
+            "answer": "one-sentence LOCAL observation",
+            "occurrences": [
+                {"timestamp": 0.0, "event": "what happened", "confidence": "high|medium|low"}
+            ],
             "evidence": [{"timestamp": 0.0, "description": "what is observed at that time"}],
         }, ensure_ascii=False),
-    ]
-    return "\n".join(lines)
-
-
-def _build_synthesis_prompt(question: str, partials: List[Dict[str, Any]]) -> str:
-    lines = [
-        "You are synthesizing a final answer from multiple observations of a video.",
-        "",
-        f"Question: {question}",
-        "",
-        "Observations from different time intervals:",
-    ]
-    for i, p in enumerate(partials, 1):
-        lines.append(
-            f"- Interval {i}: answer='{p.get('answer', '')}' confidence='{p.get('confidence', '')}'"
-        )
-    lines += [
-        "",
-        "Instructions:",
-        "1. Combine the observations into ONE final answer.",
-        "2. If the observations conflict or are insufficient, say so.",
-        "3. Return ONLY valid JSON matching this schema:",
-        json.dumps({"answer": "...", "confidence": "high|medium|low"}, ensure_ascii=False),
     ]
     return "\n".join(lines)
 
@@ -72,11 +50,17 @@ def reason_over_candidates(
     candidates: List[Dict[str, Any]],
     fine_interval: float = 2.0,
 ) -> Dict[str, Any]:
-    """Densely observe each candidate interval and synthesize an answer."""
+    """Observe each candidate interval and return local occurrences + evidence.
+
+    Returns {"answer", "occurrences", "evidence", "inspected_intervals"}.
+    `occurrences` are local events with timestamps; an empty list means the
+    subject was not observed in that interval.
+    """
     model = vlm_tool.load_model()
-    partials: List[Dict[str, Any]] = []
+    occurrences: List[Dict[str, Any]] = []
     evidence: List[Dict[str, Any]] = []
     inspected: List[Dict[str, float]] = []
+    answers: List[str] = []
 
     for cand in candidates:
         start, end = float(cand["start"]), float(cand["end"])
@@ -90,7 +74,17 @@ def reason_over_candidates(
         result = vlm_tool.analyze_frames(
             frames, prompt, model=model.model, processor=model.processor
         )
-        partials.append(result)
+        answers.append(str(result.get("answer", "")))
+        for occ in result.get("occurrences", []):
+            try:
+                ts = float(occ.get("timestamp", 0.0))
+            except (TypeError, ValueError):
+                continue
+            occurrences.append({
+                "timestamp": ts,
+                "description": str(occ.get("event", occ.get("description", ""))),
+                "confidence": str(occ.get("confidence", "medium")),
+            })
         for ev in result.get("evidence", []):
             try:
                 ts = float(ev.get("timestamp", 0.0))
@@ -98,30 +92,12 @@ def reason_over_candidates(
                 ts = 0.0
             evidence.append({"timestamp": ts, "description": str(ev.get("description", ""))})
 
-    if not partials:
-        return {
-            "answer": "无法确定（未获取到候选区间的有效画面）",
-            "confidence": "low",
-            "evidence": [],
-            "inspected_intervals": inspected,
-        }
-
-    if len(partials) == 1:
-        answer = partials[0].get("answer", "")
-        confidence = partials[0].get("confidence", "low")
-    else:
-        synth_prompt = _build_synthesis_prompt(question, partials)
-        raw = vlm_tool.generate_text(
-            synth_prompt, model=model.model, processor=model.processor
-        )
-        synth = vlm_tool._extract_json(raw)
-        answer = synth.get("answer", partials[0].get("answer", ""))
-        confidence = synth.get("confidence", "low")
-
+    occurrences.sort(key=lambda o: o["timestamp"])
     evidence.sort(key=lambda e: e["timestamp"])
+    answer = "；".join(a for a in answers if a) or "无法确定（未获取到有效画面）"
     return {
         "answer": answer,
-        "confidence": confidence,
+        "occurrences": occurrences,
         "evidence": evidence,
         "inspected_intervals": inspected,
     }
