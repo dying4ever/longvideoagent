@@ -52,21 +52,39 @@ def coarse_filter(question: str, segments: List[Dict[str, Any]], top_n: int) -> 
     return [seg for _, seg in scored[:top_n]]
 
 
+def _select_chapters_llm(question: str, chapters: List[Dict[str, Any]], top_n: int) -> List[int]:
+    model = vlm_tool.load_model()
+    lines = [
+        "Select the chapters most relevant to this video question.",
+        f"Question: {question}",
+        "Chapters:",
+    ]
+    for c in chapters:
+        lines.append(f"- chapter {c['chapter_id']}: [{c['start']}s-{c['end']}s] {c.get('summary', '')}")
+    lines += ['', f'Return ONLY JSON: {{"chapter_ids": [0, 1]}} (up to {top_n} chapters)']
+    raw = vlm_tool.generate_text("\n".join(lines), model=model.model, processor=model.processor)
+    parsed = vlm_tool._extract_json(raw)
+    return [int(cid) for cid in parsed.get("chapter_ids", [])]
+
+
 def _hierarchical_prune(
     question: str,
     video_memory: Dict[str, Any],
     segments: List[Dict[str, Any]],
     max_chapters: int = 5,
 ) -> List[Dict[str, Any]]:
-    """If hierarchical chapters exist, first pick relevant chapters, then keep
-    only segments within those chapters (MemDreamer-style coarse-to-fine)."""
+    """If hierarchical chapters exist, first pick relevant chapters (LLM semantic
+    judgment, token-overlap fallback), then keep only segments within them."""
     chapters = video_memory.get("chapters")
     if not chapters or len(chapters) <= max_chapters:
         return segments
-    scored = sorted(
-        chapters, key=lambda c: _coarse_score(question, c.get("summary", "")), reverse=True
-    )
-    kept_ids = {sid for c in scored[:max_chapters] for sid in c.get("segment_ids", [])}
+    selected = _select_chapters_llm(question, chapters, max_chapters)
+    if not selected:
+        scored = sorted(
+            chapters, key=lambda c: _coarse_score(question, c.get("summary", "")), reverse=True
+        )
+        selected = [c["chapter_id"] for c in scored[:max_chapters]]
+    kept_ids = {sid for c in chapters if c["chapter_id"] in selected for sid in c.get("segment_ids", [])}
     return [s for s in segments if s.get("segment_id") in kept_ids]
 
 

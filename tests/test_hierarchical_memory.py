@@ -73,13 +73,27 @@ def test_hierarchical_prune_reduces() -> None:
         {"chapter_id": i, "start": i * 60.0, "end": (i + 1) * 60.0, "summary": f"ch{i}", "segment_ids": [i]}
         for i in range(10)
     ]
-    pruned = grounding._hierarchical_prune("公园在哪里", many, many["segments"], max_chapters=3)
+    with mock.patch.object(grounding, "_select_chapters_llm", return_value=[0, 1, 2]):
+        pruned = grounding._hierarchical_prune("公园在哪里", many, many["segments"], max_chapters=3)
     assert len(pruned) <= 3
     print("[ok] hierarchical prune reduces segment candidates")
+
+
+def test_select_chapters_llm() -> None:
+    chapters = [
+        {"chapter_id": i, "start": i * 60.0, "end": (i + 1) * 60.0, "summary": f"ch{i}", "segment_ids": [i]}
+        for i in range(10)
+    ]
+    with mock.patch.object(vlm_tool, "load_model", return_value=_FAKE), \
+         mock.patch.object(vlm_tool, "generate_text", return_value='{"chapter_ids": [2, 5, 7]}'):
+        selected = grounding._select_chapters_llm("公园在哪里", chapters, 3)
+    assert selected == [2, 5, 7]
+    print("[ok] select_chapters_llm returns semantic chapter ids")
 
 
 if __name__ == "__main__":
     test_build_hierarchy()
     test_chapter_ranges_valid()
     test_hierarchical_prune_reduces()
+    test_select_chapters_llm()
     print("ALL HIERARCHICAL MEMORY TESTS PASSED")
