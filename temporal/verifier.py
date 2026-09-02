@@ -6,7 +6,7 @@ reports the missing ranges that must still be inspected.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import config
 from temporal.parser import AFTER, ALWAYS, BEFORE, FIRST, LAST, REPEAT
@@ -80,17 +80,24 @@ def _verify_repeat(occurrences, verified_absence, duration, threshold):
     clusters = cluster_occurrences(occurrences, threshold)
     if len(clusters) >= 2:
         return {"sufficient": True, "candidate_timestamp": None, "missing_ranges": [],
-                "reason": f"发现 {len(clusters)} 个独立 occurrence cluster，REPEAT 成立", "answer": True}
+                "reason": f"发现 {len(clusters)} 个独立 occurrence cluster，REPEAT 成立",
+                "answer": True, "clusters": clusters}
     if not clusters:
         missing = [[0.0, duration]]
     else:
         missing = intervals.subtract_intervals([clusters[0]["end"], duration], verified_absence)
     return {"sufficient": False, "candidate_timestamp": None,
             "missing_ranges": _fmt_missing(missing),
-            "reason": "独立 occurrence 不足 2 个，无法证明 repeat", "answer": None}
+            "reason": "独立 occurrence 不足 2 个，无法证明 repeat", "answer": None,
+            "clusters": clusters}
 
 
-def _verify_always(occurrences, verified_absence, searched, duration):
+def _verify_always(occurrences, verified_absence, searched, duration, violations=None):
+    violations = violations or []
+    if violations:
+        ts = violations[0].get("timestamp")
+        return {"sufficient": True, "candidate_timestamp": None, "missing_ranges": [],
+                "reason": f"发现反例：目标在 {ts}s 违反条件", "answer": False}
     if verified_absence:
         return {"sufficient": True, "candidate_timestamp": None, "missing_ranges": [],
                 "reason": "发现反例：目标在部分区间不存在", "answer": False}
@@ -140,6 +147,7 @@ def verify_temporal_condition(
     searched_intervals: Sequence[Sequence[float]],
     verified_absence_intervals: Sequence[Sequence[float]],
     video_duration: float,
+    violations: Optional[Sequence[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Return {sufficient, candidate_timestamp, missing_ranges, reason, answer}."""
     handlers = {
@@ -154,6 +162,7 @@ def verify_temporal_condition(
         return _verify_repeat(occurrences, verified_absence_intervals, video_duration,
                               config.TEMPORAL_MERGE_THRESHOLD)
     if temporal_type == ALWAYS:
-        return _verify_always(occurrences, verified_absence_intervals, searched_intervals, video_duration)
+        return _verify_always(occurrences, verified_absence_intervals, searched_intervals,
+                              video_duration, violations)
     return {"sufficient": True, "candidate_timestamp": None, "missing_ranges": [],
             "reason": "普通问答，无时序约束", "answer": None}

@@ -32,11 +32,16 @@ def _build_reasoning_prompt(question: str, frames) -> str:
         "3. You ONLY see this local interval. Do NOT claim whether this is the FIRST, LAST, ONLY, or EVERY occurrence across the WHOLE video.",
         "4. Do NOT fabricate events you cannot see.",
         "5. If the subject is not observed in this interval, return an empty occurrences list.",
-        "6. Return ONLY valid JSON matching this schema:",
+        "6. If the question asks whether something is 'always' true (e.g. '一直/始终'), also report "
+        "'violations': times when the subject is PRESENT but the condition is NOT met.",
+        "7. Return ONLY valid JSON matching this schema:",
         json.dumps({
             "answer": "one-sentence LOCAL observation",
             "occurrences": [
                 {"timestamp": 0.0, "event": "what happened", "confidence": "high|medium|low"}
+            ],
+            "violations": [
+                {"timestamp": 0.0, "event": "subject present but condition violated", "confidence": "high|medium|low"}
             ],
             "evidence": [{"timestamp": 0.0, "description": "what is observed at that time"}],
         }, ensure_ascii=False),
@@ -58,6 +63,7 @@ def reason_over_candidates(
     """
     model = vlm_tool.load_model()
     occurrences: List[Dict[str, Any]] = []
+    violations: List[Dict[str, Any]] = []
     evidence: List[Dict[str, Any]] = []
     inspected: List[Dict[str, float]] = []
     answers: List[str] = []
@@ -85,6 +91,16 @@ def reason_over_candidates(
                 "description": str(occ.get("event", occ.get("description", ""))),
                 "confidence": str(occ.get("confidence", "medium")),
             })
+        for v in result.get("violations", []):
+            try:
+                ts = float(v.get("timestamp", 0.0))
+            except (TypeError, ValueError):
+                continue
+            violations.append({
+                "timestamp": ts,
+                "description": str(v.get("event", v.get("description", ""))),
+                "confidence": str(v.get("confidence", "medium")),
+            })
         for ev in result.get("evidence", []):
             try:
                 ts = float(ev.get("timestamp", 0.0))
@@ -93,11 +109,13 @@ def reason_over_candidates(
             evidence.append({"timestamp": ts, "description": str(ev.get("description", ""))})
 
     occurrences.sort(key=lambda o: o["timestamp"])
+    violations.sort(key=lambda v: v["timestamp"])
     evidence.sort(key=lambda e: e["timestamp"])
     answer = "；".join(a for a in answers if a) or "无法确定（未获取到有效画面）"
     return {
         "answer": answer,
         "occurrences": occurrences,
+        "violations": violations,
         "evidence": evidence,
         "inspected_intervals": inspected,
     }

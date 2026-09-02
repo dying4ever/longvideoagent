@@ -127,6 +127,33 @@ def test_always_counterexample() -> None:
     print("[ok] ALWAYS counterexample -> false + sufficient")
 
 
+def test_repeat_cluster_merge() -> None:
+    v = tverifier.verify_temporal_condition(
+        "REPEAT", [{"timestamp": 6.0}, {"timestamp": 8.0}, {"timestamp": 10.0}], [], [], 285.0)
+    assert v["sufficient"] is False
+    assert len(v.get("clusters", [])) == 1
+    print("[ok] REPEAT: consecutive occurrences merge into 1 cluster")
+
+
+def test_repeat_distinct_clusters_timestamps() -> None:
+    v = tverifier.verify_temporal_condition(
+        "REPEAT", [{"timestamp": 6.0}, {"timestamp": 78.0}, {"timestamp": 177.0}], [], [], 285.0)
+    assert v["sufficient"] is True
+    assert v["answer"] is True
+    assert len(v["clusters"]) == 3
+    assert v["clusters"][1]["start"] == 78.0
+    print("[ok] REPEAT: distinct clusters -> sufficient + repeat timestamps")
+
+
+def test_always_predicate_violation() -> None:
+    v = tverifier.verify_temporal_condition(
+        "ALWAYS", [{"timestamp": 6.0}], [], [], 285.0,
+        violations=[{"timestamp": 30.0, "description": "乔治在屋里不在草地上"}])
+    assert v["sufficient"] is True
+    assert v["answer"] is False
+    print("[ok] ALWAYS: predicate violation -> false + sufficient")
+
+
 # --- planner integration ---
 
 def _mem(duration=285.0):
@@ -174,7 +201,10 @@ if __name__ == "__main__":
     test_last_suffix_covered()
     test_repeat_single_insufficient()
     test_repeat_multiple_sufficient()
+    test_repeat_cluster_merge()
+    test_repeat_distinct_clusters_timestamps()
     test_always_counterexample()
+    test_always_predicate_violation()
     test_planner_uses_missing_range()
     test_planner_no_grounding_when_sufficient()
     print("ALL TEMPORAL REASONING TESTS PASSED")

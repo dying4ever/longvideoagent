@@ -23,6 +23,7 @@ class AgentState:
         self.trace: List[Dict[str, Any]] = []
         self.temporal_type: str = "NORMAL"
         self.event_occurrences: List[Dict[str, Any]] = []
+        self.violations: List[Dict[str, Any]] = []
         self.verified_absence_intervals: List[Dict[str, float]] = []
         self.final_timestamp: Optional[float] = None
         self._step = 0
@@ -72,6 +73,21 @@ class AgentState:
         if iv not in self.verified_absence_intervals:
             self.verified_absence_intervals.append(iv)
 
+    def add_violations(self, violations: List[Dict[str, Any]]) -> None:
+        for v in violations:
+            try:
+                ts = round(float(v["timestamp"]), 3)
+            except (KeyError, TypeError, ValueError):
+                continue
+            item = {
+                "timestamp": ts,
+                "description": str(v.get("description", "")),
+                "confidence": str(v.get("confidence", "medium")),
+            }
+            if item not in self.violations:
+                self.violations.append(item)
+        self.violations.sort(key=lambda v: v["timestamp"])
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "question": self.question,
@@ -88,6 +104,7 @@ class AgentState:
             "trace": self.trace,
             "temporal_type": self.temporal_type,
             "event_occurrences": self.event_occurrences,
+            "violations": self.violations,
             "verified_absence_intervals": self.verified_absence_intervals,
             "final_timestamp": self.final_timestamp,
         }

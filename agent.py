@@ -43,16 +43,22 @@ def _update_occurrences(state: AgentState, result: Dict[str, Any], start: float,
     state.add_occurrences(occurrences)
     if not occurrences:
         state.add_verified_absence(start, end)
+    state.add_violations(result.get("violations", []))
     state.add_evidence(result.get("evidence", []))
     state.reasoning_history.append({"interval": [start, end], "result": result})
     state.current_answer = result.get("answer")
 
 
-def _trace_verifier(state: AgentState, duration: float) -> Dict[str, Any]:
-    ver = temporal_verifier.verify_temporal_condition(
+def _verify(state: AgentState, duration: float) -> Dict[str, Any]:
+    return temporal_verifier.verify_temporal_condition(
         state.temporal_type, state.event_occurrences,
         state.searched_intervals, state.verified_absence_intervals, duration,
+        violations=state.violations,
     )
+
+
+def _trace_verifier(state: AgentState, duration: float) -> Dict[str, Any]:
+    ver = _verify(state, duration)
     state.add_trace(
         "temporal_verifier", sufficient=ver.get("sufficient"),
         candidate_timestamp=ver.get("candidate_timestamp"),
@@ -68,6 +74,10 @@ def _temporal_answer(ttype: str, ver: Dict[str, Any]):
     if ttype == LAST and ver.get("candidate_timestamp") is not None:
         return f"最后一次出现约在 {ver['candidate_timestamp']}s"
     if ttype == REPEAT:
+        clusters = ver.get("clusters") or []
+        if ver.get("answer") and len(clusters) >= 2:
+            repeats = ", ".join(f"{c['start']}s" for c in clusters[1:])
+            return f"是（再次出现于 {repeats}）"
         return "是（存在多次独立出现）" if ver.get("answer") else "否（未发现重复出现）"
     if ttype == ALWAYS:
         return "否（存在反例）" if ver.get("answer") is False else "是（未发现反例）"
@@ -77,10 +87,7 @@ def _temporal_answer(ttype: str, ver: Dict[str, Any]):
 def _run_critic(state: AgentState, question: str, duration: float) -> None:
     answer = state.current_answer
     if state.temporal_type != NORMAL:
-        ver = temporal_verifier.verify_temporal_condition(
-            state.temporal_type, state.event_occurrences,
-            state.searched_intervals, state.verified_absence_intervals, duration,
-        )
+        ver = _verify(state, duration)
         tmp = _temporal_answer(state.temporal_type, ver)
         if tmp is not None:
             answer = tmp
@@ -126,16 +133,14 @@ def _build_synthesis_prompt(
 
 
 def _build_final_answer(state: AgentState, question: str) -> None:
-    ver = temporal_verifier.verify_temporal_condition(
-        state.temporal_type, state.event_occurrences,
-        state.searched_intervals, state.verified_absence_intervals,
-        state.video_duration or 0.0,
-    )
+    ver = _verify(state, state.video_duration or 0.0)
     tmp = _temporal_answer(state.temporal_type, ver)
     if tmp is not None:
         state.current_answer = tmp
         if ver.get("candidate_timestamp") is not None:
             state.final_timestamp = ver["candidate_timestamp"]
+        elif state.temporal_type == REPEAT and ver.get("clusters") and len(ver["clusters"]) >= 2:
+            state.final_timestamp = ver["clusters"][1]["start"]
         return
 
     if len(state.reasoning_history) == 1:
