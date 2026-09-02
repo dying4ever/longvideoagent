@@ -8,6 +8,7 @@ Run:  python tests/test_api.py
 from __future__ import annotations
 
 import io
+import os
 import sys
 from pathlib import Path
 from unittest import mock
@@ -72,6 +73,11 @@ def test_video_upload() -> None:
     r = client.post("/videos", files={"file": ("t.mp4", io.BytesIO(b"fake-video"), "video/mp4")})
     assert r.status_code == 200
     assert "video_id" in r.json()
+    # 清理测试写入的假视频，避免污染 data/videos/
+    vid = r.json()["video_id"]
+    path = app_module._videos.pop(vid, None)
+    if path and os.path.exists(path):
+        os.remove(path)
     print("[ok] POST /videos upload")
 
 

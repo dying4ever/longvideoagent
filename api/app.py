@@ -4,8 +4,8 @@ Wraps LongVideoAgentSession — no business logic is duplicated here.
 """
 from __future__ import annotations
 
+import hashlib
 import os
-import uuid
 from typing import Dict
 
 import config
@@ -55,11 +55,15 @@ async def upload_video(file: UploadFile = File(...)):
     data = await file.read()
     if len(data) > MAX_SIZE:
         raise HTTPException(413, "file too large")
-    video_id = uuid.uuid4().hex[:12]
+    if not data:
+        raise HTTPException(400, "empty file")
+    # 内容哈希命名：相同视频只存一份（与 memory 缓存的 video_fingerprint 一致）
+    video_id = hashlib.sha256(data).hexdigest()[:16]
     os.makedirs(config.VIDEO_DIR, exist_ok=True)
     path = str(config.VIDEO_DIR / f"{video_id}{ext}")
-    with open(path, "wb") as f:
-        f.write(data)
+    if not os.path.exists(path):
+        with open(path, "wb") as f:
+            f.write(data)
     _videos[video_id] = path
     return {"video_id": video_id, "filename": file.filename}
 
