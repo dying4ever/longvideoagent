@@ -22,3 +22,8 @@ frontend/dist/
 # openclaw local install + session state
 openclaw-cli/
 data/memory/*_session.json
+
+# ---- 运行时生成物（自动重建，不提交）----
+.playwright-mcp/
+data/memory/
+data/videos/
