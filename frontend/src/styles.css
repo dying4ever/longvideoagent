@@ -1,24 +1,24 @@
 :root {
-  --bg: #0a0a0c;
-  --bg-elevated: #0f0f12;
-  --surface: #141417;
-  --surface-2: #1a1a1f;
-  --surface-3: #202027;
-  --border: #242429;
-  --border-strong: #33333b;
-  --text: #ececf1;
-  --text-muted: #9a9aa4;
-  --text-dim: #5f5f6a;
-  --accent: #4c8dff;
-  --accent-hover: #6ba2ff;
-  --accent-dim: #22304d;
-  --accent-faint: #182238;
-  --danger: #e5484d;
-  --danger-dim: #3a1d20;
-  --ok: #46a758;
-  --ok-dim: #1c2e21;
-  --warn: #f0b429;
-  --warn-dim: #3a2f16;
+  --bg: #f5f5f7;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f2f2f4;
+  --surface-3: #e8e8ed;
+  --border: #e5e5ea;
+  --border-strong: #d1d1d6;
+  --text: #1d1d1f;
+  --text-muted: #6e6e73;
+  --text-dim: #aeaeb2;
+  --accent: #0a84ff;
+  --accent-hover: #0066cc;
+  --accent-dim: #d6e9ff;
+  --accent-faint: #eaf4ff;
+  --danger: #ff3b30;
+  --danger-dim: #ffe5e3;
+  --ok: #34c759;
+  --ok-dim: #e0f7e6;
+  --warn: #ff9500;
+  --warn-dim: #fff0d6;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -27,10 +27,10 @@
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --mono: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
 
-  --glass-bg: rgba(255, 255, 255, 0.045);
-  --glass-bg-strong: rgba(255, 255, 255, 0.07);
-  --glass-border: rgba(255, 255, 255, 0.07);
-  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.07);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
   --glass-blur: 24px;
 
   --fs-caption: 11px;
@@ -146,14 +146,14 @@ input::placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2c2c33;
+  background: #c7c7cc;
   border-radius: 5px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a43;
+  background: #aeaeb2;
   background-clip: content-box;
 }
 
@@ -224,7 +224,7 @@ input::placeholder {
 
 .video-pane {
   min-height: 0;
-  background: #060608;
+  background: #f5f5f7;
   border-right: 1px solid var(--border);
 }
 
@@ -321,7 +321,7 @@ input::placeholder {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: rgba(6, 6, 8, 0.72);
+  background: rgba(255, 255, 255, 0.7);
   color: var(--text-muted);
   font-size: var(--fs-body);
 }
@@ -407,7 +407,7 @@ input::placeholder {
 .msg.user .msg-content {
   background: var(--accent-dim);
   border-color: var(--accent-dim);
-  color: #dbe7ff;
+  color: #1d4f91;
 }
 
 .msg-timestamp,
@@ -682,7 +682,7 @@ input::placeholder {
   padding: 9px 16px;
   border-radius: 8px;
   font-size: var(--fs-body);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   z-index: 10;
 }
 
