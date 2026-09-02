@@ -21,13 +21,13 @@ export default function Chat({ messages, busy, onAsk, onSeek, disabled }) {
       <div className="chat-scroll">
         {messages.length === 0 && (
           <div className="chat-empty">
-            <p>Ask about the video.</p>
-            <p className="chat-hint">e.g. “乔治第一次什么时候出现？”</p>
+            <p>针对视频发起问题</p>
+            <p className="chat-hint">例如：“这个人第一次出现是什么时候？”</p>
           </div>
         )}
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
-            <div className="msg-label">{m.role === 'user' ? 'You' : 'Agent'}</div>
+            <div className="msg-label">{m.role === 'user' ? '你的问题' : 'Agent 回答'}</div>
             <div className="msg-content">{m.content || '…'}</div>
             {m.role === 'agent' && m.timestamp != null && (
               <div className="msg-timestamp">
@@ -49,7 +49,7 @@ export default function Chat({ messages, busy, onAsk, onSeek, disabled }) {
         ))}
         {busy && (
           <div className="msg agent">
-            <div className="msg-label">Agent</div>
+            <div className="msg-label">Agent 正在推理</div>
             <div className="thinking">
               <span className="dot" />
               <span className="dot" />
@@ -64,11 +64,11 @@ export default function Chat({ messages, busy, onAsk, onSeek, disabled }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={disabled ? 'Upload a video first' : 'Ask about the video…'}
+          placeholder={disabled ? '请先上传视频' : '输入关于视频的问题…'}
           disabled={disabled || busy}
         />
         <button className="primary" type="submit" disabled={disabled || busy || !input.trim()}>
-          Send
+          发送
         </button>
       </form>
     </div>

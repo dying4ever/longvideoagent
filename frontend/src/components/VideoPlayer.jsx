@@ -9,10 +9,10 @@ export default function VideoPlayer({ videoRef, videoId, onUpload, stage, durati
       <div className="video-empty">
         <div className="video-empty-inner">
           <div className="video-empty-icon">▶</div>
-          <p className="video-empty-title">Upload a video to start</p>
-          <p className="video-empty-sub">.mp4 · .mov · .mkv · .webm</p>
+          <p className="video-empty-title">上传一个长视频开始分析</p>
+          <p className="video-empty-sub">支持 .mp4 · .mov · .mkv · .webm</p>
           <button className="primary" onClick={() => fileRef.current?.click()}>
-            Choose video
+            选择视频
           </button>
           <input
             ref={fileRef}
@@ -32,7 +32,7 @@ export default function VideoPlayer({ videoRef, videoId, onUpload, stage, durati
       {stage && (
         <div className="video-overlay">
           <div className="spinner" />
-          <p>{stage === 'uploading' ? 'Uploading…' : 'Preparing video memory…'}</p>
+          <p>{stage === 'uploading' ? '正在上传视频…' : '正在构建视频记忆…'}</p>
         </div>
       )}
       {duration != null && <div className="video-duration">{api.formatTime(duration)}</div>}
