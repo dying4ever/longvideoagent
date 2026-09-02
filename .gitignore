@@ -11,3 +11,7 @@ __pycache__/
 # ---- 大型测试视频（可重新下载/生成，不提交）----
 data/videos/*.mp4
 data/videos/*.MP4
+
+# ---- frontend ----
+frontend/node_modules/
+frontend/dist/
