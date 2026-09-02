@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import config
 
@@ -30,6 +30,17 @@ class _VLM:
 
 # module-level cache: model + processor loaded exactly once per process
 _loaded: Optional[_VLM] = None
+
+_CALL_COUNTS = {"analyze_frames": 0, "generate_text": 0}
+
+
+def get_call_counts() -> Dict[str, int]:
+    return dict(_CALL_COUNTS)
+
+
+def reset_call_counts() -> None:
+    _CALL_COUNTS["analyze_frames"] = 0
+    _CALL_COUNTS["generate_text"] = 0
 
 
 def _require_transformers() -> None:
@@ -206,6 +217,7 @@ def analyze_frames(
 
     with torch.no_grad():
         generated = model.generate(**inputs, max_new_tokens=max_new_tokens)
+    _CALL_COUNTS["analyze_frames"] += 1
     generated = generated[:, inputs["input_ids"].shape[1]:]
     output_text = processor.batch_decode(generated, skip_special_tokens=True)[0]
 
@@ -239,5 +251,6 @@ def generate_text(
 
     with torch.no_grad():
         generated = model.generate(**inputs, max_new_tokens=max_new_tokens)
+    _CALL_COUNTS["generate_text"] += 1
     generated = generated[:, inputs["input_ids"].shape[1]:]
     return processor.batch_decode(generated, skip_special_tokens=True)[0]

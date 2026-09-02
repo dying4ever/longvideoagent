@@ -160,5 +160,45 @@
         }
       ]
     }
+  ],
+  "global_summary": "The video opens with the Peppa Pig logo and scenes of Peppa's family outdoors, leading into a title card for 'Secrets' and Peppa receiving a gift box from her mother. Peppa then presents a purple gift box to her little brother George, who reacts with excitement. Peppa is surprised when her father gives her a magic wand and another gift box, and later she and George show their gifts to their mother in the living room. The siblings play with their gift boxes and musical instruments, and the video concludes with the family enjoying donuts together in the living room.",
+  "chapters": [
+    {
+      "chapter_id": 0,
+      "start": 0.0,
+      "end": 120.0,
+      "summary": "Peppa receives a gift box from her mother and presents it to her brother George, who reacts with surprise and delight.",
+      "segment_ids": [
+        0,
+        1
+      ]
+    },
+    {
+      "chapter_id": 1,
+      "start": 120.0,
+      "end": 180.0,
+      "summary": "Peppa is surprised as her father gives her a magic wand and a gift box, and later she and George show their gift boxes to their mother.",
+      "segment_ids": [
+        2
+      ]
+    },
+    {
+      "chapter_id": 2,
+      "start": 180.0,
+      "end": 240.0,
+      "summary": "Peppa and George play with two gift boxes and later engage in playing musical instruments together.",
+      "segment_ids": [
+        3
+      ]
+    },
+    {
+      "chapter_id": 3,
+      "start": 240.0,
+      "end": 284.966,
+      "summary": "Peppa and her family enjoy donuts together in the living room.",
+      "segment_ids": [
+        4
+      ]
+    }
   ]
 }

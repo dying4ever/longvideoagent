@@ -129,3 +129,51 @@ def build_video_memory(
 
     save_video_memory(memory, out_path)
     return memory
+
+
+def build_hierarchy(memory: Dict[str, Any], output_path: Optional[str] = None) -> Dict[str, Any]:
+    """Add global_summary + chapters (MemDreamer-style hierarchy) to a memory.
+
+    Chapters are contiguous groups of adjacent segments with semantic
+    continuity. If already present, returns the memory unchanged.
+    """
+    if memory.get("global_summary") and memory.get("chapters"):
+        return memory
+
+    segments = memory.get("segments", [])
+    model = vlm_tool.load_model()
+
+    if not memory.get("global_summary"):
+        lines = ["Summarize the overall content of this video from its segment summaries:", ""]
+        for s in segments:
+            lines.append(f"[{s['start']}s-{s['end']}s] {s.get('summary', '')}")
+        lines += ['', 'Return ONLY JSON: {"global_summary": "one-paragraph summary"}']
+        raw = vlm_tool.generate_text("\n".join(lines), model=model.model, processor=model.processor)
+        memory["global_summary"] = vlm_tool._extract_json(raw).get("global_summary", "")
+
+    if not memory.get("chapters") and segments:
+        lines = ["Group these CONSECUTIVE segments into chapters (scenes). Only group ADJACENT segments.", ""]
+        for s in segments:
+            lines.append(f"segment {s['segment_id']}: [{s['start']}s-{s['end']}s] {s.get('summary', '')}")
+        lines += ['', 'Return ONLY JSON: {"chapters": [{"segment_ids": [0, 1], "summary": "..."}]}']
+        raw = vlm_tool.generate_text("\n".join(lines), model=model.model, processor=model.processor)
+        parsed = vlm_tool._extract_json(raw)
+        seg_by_id = {s["segment_id"]: s for s in segments}
+        chapters = []
+        for i, c in enumerate(parsed.get("chapters", [])):
+            ids = [sid for sid in c.get("segment_ids", []) if sid in seg_by_id]
+            if not ids:
+                continue
+            ids.sort()
+            chapters.append({
+                "chapter_id": i,
+                "start": seg_by_id[ids[0]]["start"],
+                "end": seg_by_id[ids[-1]]["end"],
+                "summary": c.get("summary", ""),
+                "segment_ids": ids,
+            })
+        memory["chapters"] = chapters
+
+    if output_path:
+        save_video_memory(memory, output_path)
+    return memory

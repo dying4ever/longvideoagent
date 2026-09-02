@@ -37,7 +37,7 @@ _LLM_FALLBACK_PROMPT = (
 
 
 def _rule_match(question_lower: str) -> Optional[str]:
-    for ttype in (ALWAYS, FIRST, LAST, BEFORE, AFTER, REPEAT):
+    for ttype in (ALWAYS, FIRST, LAST, REPEAT, BEFORE, AFTER):
         for kw in _KEYWORDS[ttype]:
             if kw in question_lower:
                 return ttype
@@ -67,3 +67,34 @@ def parse_temporal_query(
     if ttype not in (FIRST, LAST, REPEAT, BEFORE, AFTER, ALWAYS):
         ttype = NORMAL
     return {"type": ttype, "target": None, "reference_event": None}
+
+
+_EXTRACT_TARGET_PROMPT = (
+    "Extract the target event and reference event from this video question.\n"
+    "target: the event being asked about, with subject / predicate / object, and the subject's gender.\n"
+    "reference_event: the event used as a TIME ANCHOR for 'before/after' questions "
+    "(the event right before 之前/之后); null if not applicable.\n"
+    "Question: {question}\n"
+    'Return ONLY JSON: {{"target": {{"subject": "s", "gender": "male|female|unknown", '
+    '"predicate": "p", "object": null}}, '
+    '"reference_event": {{"subject": "s", "gender": "male|female|unknown", "predicate": "p", "object": null}}}}'
+)
+
+
+def extract_target_reference(
+    question: str,
+    model=None,
+    processor=None,
+) -> Dict[str, Any]:
+    """Return {"target": {...}, "reference_event": {...}} via structured LLM extraction."""
+    if model is None or processor is None:
+        vlm = vlm_tool.load_model()
+        model, processor = vlm.model, vlm.processor
+    raw = vlm_tool.generate_text(
+        _EXTRACT_TARGET_PROMPT.format(question=question),
+        model=model, processor=processor, max_new_tokens=256,
+    )
+    parsed = vlm_tool._extract_json(raw)
+    target = parsed.get("target") or None
+    reference_event = parsed.get("reference_event") or None
+    return {"target": target, "reference_event": reference_event}

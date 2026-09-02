@@ -7,7 +7,7 @@ so it terminates on verifiable coverage rather than max_iterations.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from agent_state import AgentState
 from agents import critic, grounding, planner, reasoning
@@ -155,10 +155,14 @@ def run_agent(
     max_iterations: int = 5,
     top_k: int = 3,
     fine_interval: float = 2.0,
+    initial_occurrences: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Run the closed-loop QA agent and return the final serialized state."""
     duration = float(video_memory.get("duration", 0.0))
     state = AgentState(question, max_iterations=max_iterations, video_duration=duration)
+
+    if initial_occurrences:
+        state.add_occurrences(initial_occurrences)
 
     parsed = temporal_parser.parse_temporal_query(question)
     state.temporal_type = parsed["type"]

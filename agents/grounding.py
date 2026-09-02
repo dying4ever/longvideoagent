@@ -51,6 +51,24 @@ def coarse_filter(question: str, segments: List[Dict[str, Any]], top_n: int) -> 
     return [seg for _, seg in scored[:top_n]]
 
 
+def _hierarchical_prune(
+    question: str,
+    video_memory: Dict[str, Any],
+    segments: List[Dict[str, Any]],
+    max_chapters: int = 5,
+) -> List[Dict[str, Any]]:
+    """If hierarchical chapters exist, first pick relevant chapters, then keep
+    only segments within those chapters (MemDreamer-style coarse-to-fine)."""
+    chapters = video_memory.get("chapters")
+    if not chapters or len(chapters) <= max_chapters:
+        return segments
+    scored = sorted(
+        chapters, key=lambda c: _coarse_score(question, c.get("summary", "")), reverse=True
+    )
+    kept_ids = {sid for c in scored[:max_chapters] for sid in c.get("segment_ids", [])}
+    return [s for s in segments if s.get("segment_id") in kept_ids]
+
+
 def _build_grounding_prompt(question: str, segments: List[Dict[str, Any]], top_k: int) -> str:
     lines = [
         "You are a video temporal grounding assistant.",
@@ -99,6 +117,8 @@ def ground_video(
         ]
     if not segments:
         return {"query": question, "candidates": []}
+
+    segments = _hierarchical_prune(question, video_memory, segments)
 
     if len(segments) > MAX_SEGMENTS_FOR_MODEL:
         candidates = coarse_filter(question, segments, MAX_SEGMENTS_FOR_MODEL)
