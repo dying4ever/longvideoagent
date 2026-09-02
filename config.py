@@ -56,3 +56,7 @@ DEFAULT_INTERVAL = 2.0
 # Occurrences closer than this (seconds) are merged into one occurrence cluster,
 # so adjacent frames (78s/80s/82s) are not counted as independent events.
 TEMPORAL_MERGE_THRESHOLD = 5.0
+
+# --- Memory cache -------------------------------------------------------------
+# Bump this when the memory format changes so stale cached memories are rebuilt.
+MEMORY_VERSION = "2"

@@ -36,7 +36,12 @@ def _mem():
 
 
 def _session():
-    with mock.patch.object(video_memory, "load_video_memory", return_value=_mem()):
+    with mock.patch.object(video_memory, "load_video_memory", return_value=_mem()), \
+         mock.patch.object(video_memory, "memory_matches", return_value=True), \
+         mock.patch.object(video_memory, "video_fingerprint", return_value="fakefp"), \
+         mock.patch.object(video_memory, "memory_matches", return_value=True), \
+         mock.patch.object(video_memory, "video_fingerprint", return_value="fakefp"), \
+         mock.patch.object(video_memory, "video_fingerprint", return_value="fakefp"):
         return LongVideoAgentSession("/tmp/v.mp4")
 
 
@@ -56,6 +61,8 @@ def test_multiturn_reuse_reference() -> None:
     }
     ground_result = {"query": "q", "candidates": [{"start": 6.0, "end": 285.0, "score": 0.9, "reason": "r"}]}
     with mock.patch.object(video_memory, "load_video_memory", return_value=_mem()), \
+         mock.patch.object(video_memory, "memory_matches", return_value=True), \
+         mock.patch.object(video_memory, "video_fingerprint", return_value="fakefp"), \
          mock.patch.object(temporal_parser, "extract_target_reference", side_effect=targets), \
          mock.patch.object(agent, "run_agent", return_value=agent_result), \
          mock.patch.object(reasoning, "reason_over_candidates", return_value=reason_result), \

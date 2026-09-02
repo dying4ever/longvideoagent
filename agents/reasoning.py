@@ -11,6 +11,7 @@ import json
 from typing import Any, Dict, List
 
 from tools import video_tool, vlm_tool
+from utils import profiler
 
 
 def _build_reasoning_prompt(question: str, frames) -> str:
@@ -49,6 +50,7 @@ def _build_reasoning_prompt(question: str, frames) -> str:
     return "\n".join(lines)
 
 
+@profiler.timed("reasoning")
 def reason_over_candidates(
     video_path: str,
     question: str,

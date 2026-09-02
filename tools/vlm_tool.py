@@ -14,6 +14,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 import config
+from utils import profiler
 
 
 class VLMError(Exception):
@@ -61,6 +62,7 @@ def _require_transformers() -> None:
         )
 
 
+@profiler.timed("model_load")
 def load_model(
     model_path: Optional[str] = None,
     device_map: str = config.DEVICE_MAP,

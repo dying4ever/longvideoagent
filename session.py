@@ -39,7 +39,9 @@ class LongVideoAgentSession:
     def _load_or_build_memory(self) -> Dict[str, Any]:
         mem_path = video_memory.default_memory_path(self.video_path)
         existing = video_memory.load_video_memory(mem_path)
-        if existing is not None and "events" in existing:
+        if existing is not None and video_memory.memory_matches(
+            existing, self.video_path, self.window_size, 5.0
+        ):
             return existing
         return video_memory.build_event_memory(
             self.video_path, window_size=self.window_size, frame_interval=5.0

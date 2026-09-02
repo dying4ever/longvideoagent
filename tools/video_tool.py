@@ -111,35 +111,39 @@ def sample_frames(
         raise VideoError(f"interval must be > 0, got {interval}")
     start, end = _resolve_range(video_path, start_time, end_time)
 
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        raise VideoError(f"could not open video: {video_path}")
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    if not fps or fps <= 0:
-        cap.release()
-        raise VideoError(f"invalid fps for video: {video_path}")
+    from utils import profiler
 
-    frames: List[VideoFrame] = []
-    try:
-        i = 0
-        while True:
-            t = start + i * interval
-            if t >= end:
-                break
-            frame_index = int(round(t * fps))
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
-            ok, bgr = cap.read()
-            if not ok:
-                break  # reached EOF early; stop instead of erroring
-            rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-            frames.append(VideoFrame(
-                timestamp=round(frame_index / fps, 3),
-                frame_index=frame_index,
-                image=Image.fromarray(rgb),
-            ))
-            i += 1
-    finally:
-        cap.release()
+    with profiler.timeit("frame_sampling"):
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise VideoError(f"could not open video: {video_path}")
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        if not fps or fps <= 0:
+            cap.release()
+            raise VideoError(f"invalid fps for video: {video_path}")
+
+        frames: List[VideoFrame] = []
+        try:
+            i = 0
+            while True:
+                t = start + i * interval
+                if t >= end:
+                    break
+                frame_index = int(round(t * fps))
+                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+                ok, bgr = cap.read()
+                if not ok:
+                    break
+                rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                frames.append(VideoFrame(
+                    timestamp=round(frame_index / fps, 3),
+                    frame_index=frame_index,
+                    image=Image.fromarray(rgb),
+                ))
+                i += 1
+        finally:
+            cap.release()
+        profiler.count_frames(len(frames))
     return frames
 
 

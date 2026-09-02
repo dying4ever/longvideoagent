@@ -16,6 +16,7 @@ import re
 from typing import Any, Dict, List
 
 from tools import vlm_tool
+from utils import profiler
 
 MAX_SEGMENTS_FOR_MODEL = 8
 
@@ -95,6 +96,7 @@ def _build_grounding_prompt(question: str, segments: List[Dict[str, Any]], top_k
     return "\n".join(lines)
 
 
+@profiler.timed("grounding")
 def ground_video(
     question: str,
     video_memory: Dict[str, Any],

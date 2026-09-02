@@ -18,8 +18,10 @@ _SESSIONS: Dict[str, LongVideoAgentSession] = {}
 
 
 def _session_file(video_path: str) -> str:
-    stem = os.path.splitext(os.path.basename(video_path))[0]
-    return str(config.DATA_DIR / "memory" / f"{stem}_session.json")
+    from memory import video_memory
+
+    fp = video_memory.video_fingerprint(video_path)
+    return str(config.DATA_DIR / "memory" / f"{fp}_session.json")
 
 
 def create_session(video_path: str, **kwargs: Any) -> Dict[str, Any]:

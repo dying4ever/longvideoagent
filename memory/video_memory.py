@@ -16,8 +16,20 @@ from typing import Any, Dict, List, Optional
 
 import config
 from tools import video_tool, vlm_tool
+from utils import profiler
 
 MEMORY_QUESTION = "这段视频里发生了什么？请描述画面中的场景、人物、物体和动作。"
+
+
+def video_fingerprint(video_path: str, chunk_size: int = 1 << 20) -> str:
+    """Return a content hash of the video (first 16 sha256 hex chars)."""
+    import hashlib
+
+    h = hashlib.sha256()
+    with open(video_path, "rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
 
 
 def _split_segments(duration: float, window_size: float) -> List[Dict[str, float]]:
@@ -45,8 +57,8 @@ def _split_segments(duration: float, window_size: float) -> List[Dict[str, float
 
 
 def default_memory_path(video_path: str) -> str:
-    stem = os.path.splitext(os.path.basename(video_path))[0]
-    return str(config.DATA_DIR / "memory" / f"{stem}_memory.json")
+    fp = video_fingerprint(video_path)
+    return str(config.DATA_DIR / "memory" / f"{fp}_memory.json")
 
 
 def load_video_memory(path: str) -> Optional[Dict[str, Any]]:
@@ -215,6 +227,7 @@ def _build_event_prompt(frames, window_start: float, window_end: float, carry: O
     return "\n".join(lines)
 
 
+@profiler.timed("event_segmentation")
 def segment_events(
     video_path: str,
     window_size: float = 60,
@@ -290,6 +303,7 @@ def _events_to_segments(events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return result
 
 
+@profiler.timed("hierarchy_build")
 def _add_event_hierarchy(memory: Dict[str, Any]) -> None:
     events = memory.get("events", [])
     model = vlm_tool.load_model()
@@ -342,6 +356,8 @@ def build_event_memory(
     memory = {
         "video_path": os.path.abspath(video_path),
         "duration": duration,
+        "fingerprint": video_fingerprint(video_path),
+        "memory_version": config.MEMORY_VERSION,
         "window_size": window_size,
         "frame_interval": frame_interval,
         "events": events,
@@ -350,3 +366,19 @@ def build_event_memory(
     _add_event_hierarchy(memory)
     save_video_memory(memory, out_path)
     return memory
+
+
+def memory_matches(
+    memory: Dict[str, Any],
+    video_path: str,
+    window_size: float,
+    frame_interval: float,
+) -> bool:
+    """Return True if a cached memory is reusable for the given video + config."""
+    return (
+        memory.get("events") is not None
+        and memory.get("memory_version") == config.MEMORY_VERSION
+        and memory.get("fingerprint") == video_fingerprint(video_path)
+        and memory.get("window_size") == window_size
+        and memory.get("frame_interval") == frame_interval
+    )

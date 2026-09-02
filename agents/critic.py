@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 from temporal import verifier
 from temporal.parser import NORMAL
 from tools import vlm_tool
+from utils import profiler
 
 
 def _build_semantic_prompt(
@@ -56,6 +57,7 @@ def _build_semantic_prompt(
     return "\n".join(lines)
 
 
+@profiler.timed("critic")
 def critique_answer(
     question: str,
     answer: Any,
