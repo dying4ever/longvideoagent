@@ -15,7 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 import agent  # noqa: E402
-from agents import reasoning  # noqa: E402
+from agents import grounding, reasoning  # noqa: E402
 from memory import video_memory  # noqa: E402
 from session import LongVideoAgentSession  # noqa: E402
 from temporal import parser as temporal_parser  # noqa: E402
@@ -25,6 +25,8 @@ def _mem():
     return {
         "video_path": "/tmp/v.mp4",
         "duration": 285.0,
+        "global_summary": "佩奇一家",
+        "chapters": [],
         "segments": [
             {"segment_id": i, "start": i * 60.0, "end": (i + 1) * 60.0, "summary": f"s{i}", "events": []}
             for i in range(5)
@@ -51,10 +53,12 @@ def test_multiturn_reuse_reference() -> None:
         "answer": "乔治出现后和佩奇一起玩", "occurrences": [], "evidence": [],
         "inspected_intervals": [{"start": 6.0, "end": 285.0}],
     }
+    ground_result = {"query": "q", "candidates": [{"start": 6.0, "end": 285.0, "score": 0.9, "reason": "r"}]}
     with mock.patch.object(video_memory, "load_video_memory", return_value=_mem()), \
          mock.patch.object(temporal_parser, "extract_target_reference", side_effect=targets), \
          mock.patch.object(agent, "run_agent", return_value=agent_result), \
-         mock.patch.object(reasoning, "reason_over_candidates", return_value=reason_result):
+         mock.patch.object(reasoning, "reason_over_candidates", return_value=reason_result), \
+         mock.patch.object(grounding, "ground_video", return_value=ground_result):
         session = LongVideoAgentSession("/tmp/v.mp4")
         r1 = session.ask("乔治第一次什么时候出现？")
         r2 = session.ask("他出现之后做了什么？")
