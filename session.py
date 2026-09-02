@@ -111,7 +111,7 @@ class LongVideoAgentSession:
                 self.video_path, question, candidates, fine_interval=self.frame_interval
             )
             res["status"] = "finished"
-            res["current_answer"] = res.get("answer")
+            res["current_answer"] = self._grounded_answer(res.get("evidence", []), ref_ts)
             res["final_timestamp"] = ref_ts
             res["trace"] = [
                 {"step": 1, "agent": "context_resolver", "reference_timestamp": ref_ts},
@@ -125,6 +125,12 @@ class LongVideoAgentSession:
             max_iterations=self.max_iterations, top_k=self.top_k, fine_interval=self.fine_interval,
             initial_occurrences=self._known_occurrences(),
         )
+
+    def _grounded_answer(self, evidence: List[Dict[str, Any]], ref_ts: float) -> str:
+        if not evidence:
+            return "该时间范围内未观察到相关画面"
+        parts = [f"{ev['timestamp']:.0f}s {ev['description']}" for ev in evidence[:6]]
+        return "；".join(parts)
 
     def _known_occurrences(self) -> List[Dict[str, Any]]:
         return [

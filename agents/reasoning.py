@@ -31,7 +31,7 @@ def _build_reasoning_prompt(question: str, frames) -> str:
         "1. Observe the frames carefully in chronological order.",
         "2. Report the LOCAL occurrences of the subject/event with their timestamps.",
         "3. You ONLY see this local interval. Do NOT claim whether this is the FIRST, LAST, ONLY, or EVERY occurrence across the WHOLE video.",
-        "4. Do NOT fabricate events you cannot see.",
+        "4. Do NOT fabricate events, objects or actions you cannot see. The answer and every evidence description must describe ONLY what is actually visible in a frame — never infer outcomes, names of unseen objects, or off-screen actions.",
         "5. If the subject is not observed in this interval, return an empty occurrences list.",
         "6. If the question asks whether something is 'always' true (e.g. '一直/始终'), also report "
         "'violations': times when the subject is PRESENT but the condition is NOT met.",
