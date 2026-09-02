@@ -15,3 +15,6 @@ data/videos/*.MP4
 # ---- frontend ----
 frontend/node_modules/
 frontend/dist/
+
+# ---- isolated feature worktrees ----
+.worktrees/
