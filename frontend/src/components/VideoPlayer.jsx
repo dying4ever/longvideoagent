@@ -8,6 +8,7 @@ export default function VideoPlayer({ videoRef, videoId, onUpload, stage, durati
     return (
       <div className="video-empty">
         <div className="video-empty-inner">
+          <div className="video-empty-icon">▶</div>
           <p className="video-empty-title">Upload a video to start</p>
           <p className="video-empty-sub">.mp4 · .mov · .mkv · .webm</p>
           <button className="primary" onClick={() => fileRef.current?.click()}>
