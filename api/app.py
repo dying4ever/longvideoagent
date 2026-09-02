@@ -10,7 +10,7 @@ from typing import Dict
 
 import config
 import model_registry
-from api import session_manager
+from api import progress, session_manager
 from api.schemas import AskRequest, SessionCreateRequest
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -74,15 +74,27 @@ def create_session(req: SessionCreateRequest):
     if not path:
         raise HTTPException(404, "video not found")
     try:
-        sid, session = session_manager.create_session(path)
+        sid, session = session_manager.create_session(
+            path, progress_cb=lambda info: progress.set_progress(req.video_id, info)
+        )
     except Exception as e:
         raise HTTPException(500, f"failed to build session: {e}")
+    finally:
+        progress.clear_progress(req.video_id)
     return {
         "session_id": sid,
         "status": "ready",
         "duration": session.duration,
         "n_segments": len(session.video_memory.get("segments", [])),
     }
+
+
+@app.get("/progress/{video_id}")
+def get_progress(video_id: str):
+    info = progress.get_progress(video_id)
+    if info is None:
+        raise HTTPException(404, "no build in progress")
+    return info
 
 
 @app.post("/sessions/{sid}/ask")

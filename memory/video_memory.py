@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import math
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import config
 from tools import video_tool, vlm_tool
@@ -232,6 +232,7 @@ def segment_events(
     video_path: str,
     window_size: float = 60,
     frame_interval: float = 5,
+    progress_cb: Optional[Callable[[Dict[str, Any]], None]] = None,
 ) -> List[Dict[str, Any]]:
     """Adaptive event segmentation.
 
@@ -239,16 +240,25 @@ def segment_events(
     adaptive event boundaries WITHIN each window. An event that is still
     ongoing at the window edge is carried into the next window (merged), so a
     semantic event is never split by the fixed window boundary.
+
+    `progress_cb`, when provided, receives progress dicts: {"phase": "loading"},
+    then {"phase": "segmenting", "window": i, "total": n} per window.
     """
+    if progress_cb:
+        progress_cb({"phase": "loading"})
     duration = video_tool.get_video_duration(video_path)
     model = vlm_tool.load_model()
     events: List[Dict[str, Any]] = []
     carry: Optional[Dict] = None
     window_start = 0.0
     eid = 0
+    total_windows = max(1, int(math.ceil(duration / window_size)))
+    window_index = 0
 
     while window_start < duration:
         window_end = min(window_start + window_size, duration)
+        if progress_cb:
+            progress_cb({"phase": "segmenting", "window": window_index, "total": total_windows})
         frames = video_tool.sample_frames(
             video_path, start_time=window_start, end_time=window_end, interval=frame_interval
         )
@@ -256,7 +266,8 @@ def segment_events(
             break
         prompt = _build_event_prompt(frames, window_start, window_end, carry)
         result = vlm_tool.analyze_frames(
-            frames, prompt, model=model.model, processor=model.processor
+            frames, prompt, model=model.model, processor=model.processor,
+            max_new_tokens=config.SEGMENT_MAX_NEW_TOKENS,
         )
         for ev in result.get("events", []):
             try:
@@ -283,6 +294,7 @@ def segment_events(
         else:
             carry = None
         window_start = window_end
+        window_index += 1
 
     return events
 
@@ -344,6 +356,7 @@ def build_event_memory(
     window_size: float = 60,
     frame_interval: float = 5,
     output_path: Optional[str] = None,
+    progress_cb: Optional[Callable[[Dict[str, Any]], None]] = None,
 ) -> Dict[str, Any]:
     """Build adaptive-event video memory (events + hierarchy).
 
@@ -352,7 +365,12 @@ def build_event_memory(
     """
     duration = video_tool.get_video_duration(video_path)
     out_path = output_path or default_memory_path(video_path)
-    events = segment_events(video_path, window_size=window_size, frame_interval=frame_interval)
+    events = segment_events(
+        video_path, window_size=window_size, frame_interval=frame_interval,
+        progress_cb=progress_cb,
+    )
+    if progress_cb:
+        progress_cb({"phase": "hierarchy"})
     memory = {
         "video_path": os.path.abspath(video_path),
         "duration": duration,

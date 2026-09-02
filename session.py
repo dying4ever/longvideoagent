@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import agent
+import config
 from agents import grounding, reasoning
 from memory import context_resolver, conversation_memory, video_memory
 from temporal import parser as temporal_parser
@@ -25,6 +26,7 @@ class LongVideoAgentSession:
         top_k: int = 2,
         fine_interval: float = 3.0,
         max_iterations: int = 6,
+        progress_cb=None,
     ):
         self.video_path = video_path
         self.window_size = window_size
@@ -32,6 +34,7 @@ class LongVideoAgentSession:
         self.top_k = top_k
         self.fine_interval = fine_interval
         self.max_iterations = max_iterations
+        self.progress_cb = progress_cb
         self.conversation = conversation_memory.ConversationMemory(video_path=video_path)
         self.video_memory: Dict[str, Any] = self._load_or_build_memory()
         self.duration = float(self.video_memory.get("duration", 0.0))
@@ -40,11 +43,15 @@ class LongVideoAgentSession:
         mem_path = video_memory.default_memory_path(self.video_path)
         existing = video_memory.load_video_memory(mem_path)
         if existing is not None and video_memory.memory_matches(
-            existing, self.video_path, self.window_size, 5.0
+            existing, self.video_path,
+            config.SEGMENT_WINDOW_SIZE, config.SEGMENT_FRAME_INTERVAL,
         ):
             return existing
         return video_memory.build_event_memory(
-            self.video_path, window_size=self.window_size, frame_interval=5.0
+            self.video_path,
+            window_size=config.SEGMENT_WINDOW_SIZE,
+            frame_interval=config.SEGMENT_FRAME_INTERVAL,
+            progress_cb=self.progress_cb,
         )
 
     # ---- main entry ----

@@ -31,6 +31,7 @@ export async function uploadVideo(file) {
 }
 
 export const createSession = (videoId) => post('/sessions', { video_id: videoId });
+export const getProgress = (videoId) => get(`/progress/${videoId}`);
 export const ask = (sessionId, question) => post(`/sessions/${sessionId}/ask`, { question });
 export const getMemory = (sessionId) => get(`/sessions/${sessionId}/memory`);
 export const getTrace = (sessionId) => get(`/sessions/${sessionId}/trace`);

@@ -15,6 +15,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [stage, setStage] = useState(null);
+  const [buildProgress, setBuildProgress] = useState(null);
   const [models, setModels] = useState([]);
   const [backendStatus, setBackendStatus] = useState(null);
   const [selectedModel, setSelectedModel] = useState('qwen3-vl-8b-local');
@@ -28,10 +29,14 @@ export default function App() {
   async function handleUpload(file) {
     setError(null);
     setStage('uploading');
+    let poller = null;
     try {
       const v = await api.uploadVideo(file);
       setVideoId(v.video_id);
       setStage('building');
+      poller = setInterval(() => {
+        api.getProgress(v.video_id).then(setBuildProgress).catch(() => {});
+      }, 800);
       const s = await api.createSession(v.video_id);
       setSessionId(s.session_id);
       setDuration(s.duration);
@@ -42,6 +47,9 @@ export default function App() {
     } catch (e) {
       setError(e.message);
       setStage(null);
+    } finally {
+      if (poller) clearInterval(poller);
+      setBuildProgress(null);
     }
   }
 
@@ -173,6 +181,7 @@ export default function App() {
             onUpload={handleUpload}
             stage={stage}
             duration={duration}
+            buildProgress={buildProgress}
           />
         </section>
 

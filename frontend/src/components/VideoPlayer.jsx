@@ -1,7 +1,14 @@
 import React, { useRef } from 'react';
 import * as api from '../api.js';
 
-export default function VideoPlayer({ videoRef, videoId, onUpload, stage, duration }) {
+function buildLabel(p) {
+  if (p?.phase === 'loading') return '正在加载模型…';
+  if (p?.phase === 'segmenting') return `正在切分事件：第 ${p.window + 1} / ${p.total} 个窗口`;
+  if (p?.phase === 'hierarchy') return '正在生成摘要与章节…';
+  return '正在构建视频记忆…';
+}
+
+export default function VideoPlayer({ videoRef, videoId, onUpload, stage, duration, buildProgress }) {
   const fileRef = useRef(null);
 
   if (!videoId) {
@@ -32,7 +39,15 @@ export default function VideoPlayer({ videoRef, videoId, onUpload, stage, durati
       {stage && (
         <div className="video-overlay">
           <div className="spinner" />
-          <p>{stage === 'uploading' ? '正在上传视频…' : '正在构建视频记忆…'}</p>
+          <p>{stage === 'uploading' ? '正在上传视频…' : buildLabel(buildProgress)}</p>
+          {stage === 'building' && buildProgress?.phase === 'segmenting' && (
+            <div className="build-progress">
+              <div
+                className="build-progress-bar"
+                style={{ width: `${Math.round((buildProgress.window / buildProgress.total) * 100)}%` }}
+              />
+            </div>
+          )}
         </div>
       )}
       {duration != null && <div className="video-duration">{api.formatTime(duration)}</div>}

@@ -52,6 +52,13 @@ DTYPE = "auto"            # Qwen3-VL uses `dtype` (not `torch_dtype`); "auto" de
 MAX_NEW_TOKENS = 2048
 DEFAULT_INTERVAL = 2.0
 
+# --- Event segmentation (one-time memory building) ---
+# Coarse sampling keeps memory building fast; the per-question reasoning
+# (fine_interval) still localizes precisely over these segments.
+SEGMENT_WINDOW_SIZE = 180.0
+SEGMENT_FRAME_INTERVAL = 20.0
+SEGMENT_MAX_NEW_TOKENS = 512
+
 # --- Temporal reasoning ------------------------------------------------------
 # Occurrences closer than this (seconds) are merged into one occurrence cluster,
 # so adjacent frames (78s/80s/82s) are not counted as independent events.

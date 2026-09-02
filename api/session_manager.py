@@ -13,9 +13,9 @@ from session import LongVideoAgentSession
 _sessions: Dict[str, LongVideoAgentSession] = {}
 
 
-def create_session(video_path: str, **kwargs) -> Tuple[str, LongVideoAgentSession]:
+def create_session(video_path: str, progress_cb=None, **kwargs) -> Tuple[str, LongVideoAgentSession]:
     sid = uuid.uuid4().hex[:12]
-    session = LongVideoAgentSession(video_path, **kwargs)
+    session = LongVideoAgentSession(video_path, progress_cb=progress_cb, **kwargs)
     _sessions[sid] = session
     return sid, session
 
