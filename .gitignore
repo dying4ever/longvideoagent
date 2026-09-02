@@ -18,3 +18,7 @@ frontend/dist/
 
 # ---- isolated feature worktrees ----
 .worktrees/
+
+# openclaw local install + session state
+openclaw-cli/
+data/memory/*_session.json

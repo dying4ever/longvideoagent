@@ -18,18 +18,24 @@ Trigger when the user:
 4. Asks consecutive questions about the same video.
 5. Asks first / last / before / after / repeat / always temporal relations.
 
-## How it works
+## How to invoke
 
-Call the `openclaw_adapter` — do NOT re-implement the agent logic. The adapter
-wraps the single `LongVideoAgentSession`.
+Do NOT re-implement the agent. Run the adapter CLI — it wraps the single
+`LongVideoAgentSession` and persists the conversation across turns:
 
+```bash
+/home/ps/.miniconda3/envs/zjx_openvla/bin/python /mnt/sda/zjx_space/agent/openclaw_adapter.py \
+  --video <path-to-video> --question "<user question>"
 ```
-create_session(video_path)   → session_id
-ask(session_id, question)    → answer + evidence + trace
-get_trace(session_id)        → per-turn trace
-get_memory(session_id)       → working / conversation / video memory
-reset_session(session_id)    → clear conversation memory (keep video memory)
-```
+
+The command prints JSON with `answer`, `status`, `timestamp`, `temporal_type`,
+`resolved_question` and `evidence`.
+
+- Use the FULL conda python path (zjx_openvla has torch + Qwen3-VL).
+- The conversation memory is persisted next to the video memory, so asking the
+  same video again automatically reuses confirmed entities / reference events /
+  occurrences (multi-turn).
+- Do NOT pre-load the model or rebuild memory yourself — the adapter handles it.
 
 ## Workflow (internal, for context)
 

@@ -6,12 +6,20 @@ the Web API.
 """
 from __future__ import annotations
 
+import json
+import os
 import uuid
 from typing import Any, Dict, Optional
 
+import config
 from session import LongVideoAgentSession
 
 _SESSIONS: Dict[str, LongVideoAgentSession] = {}
+
+
+def _session_file(video_path: str) -> str:
+    stem = os.path.splitext(os.path.basename(video_path))[0]
+    return str(config.DATA_DIR / "memory" / f"{stem}_session.json")
 
 
 def create_session(video_path: str, **kwargs: Any) -> Dict[str, Any]:
@@ -69,3 +77,35 @@ def _get(session_id: str) -> LongVideoAgentSession:
     if session_id not in _SESSIONS:
         raise KeyError(f"session not found: {session_id}")
     return _SESSIONS[session_id]
+
+
+def main() -> None:
+    """CLI entry: OpenClaw runs this to ask LongVideoAgent a question.
+
+    The conversation memory is persisted next to the video memory, so repeated
+    invocations (one per turn) reuse entities / reference events / occurrences.
+    """
+    import argparse
+
+    p = argparse.ArgumentParser(description="LongVideoAgent CLI (OpenClaw bridge)")
+    p.add_argument("--video", required=True)
+    p.add_argument("--question", required=True)
+    args = p.parse_args()
+
+    session = LongVideoAgentSession(args.video)
+    session.load(_session_file(args.video))
+    result = session.ask(args.question)
+    session.save(_session_file(args.video))
+
+    print(json.dumps({
+        "answer": result.get("current_answer"),
+        "status": result.get("status"),
+        "timestamp": result.get("final_timestamp"),
+        "temporal_type": result.get("temporal_type"),
+        "resolved_question": result.get("resolved_question"),
+        "evidence": result.get("evidence", []),
+    }, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()
