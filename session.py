@@ -39,13 +39,11 @@ class LongVideoAgentSession:
     def _load_or_build_memory(self) -> Dict[str, Any]:
         mem_path = video_memory.default_memory_path(self.video_path)
         existing = video_memory.load_video_memory(mem_path)
-        if existing is None:
-            existing = video_memory.build_video_memory(
-                self.video_path, window_size=self.window_size, frame_interval=self.frame_interval
-            )
-        if "global_summary" not in existing or "chapters" not in existing:
-            existing = video_memory.build_hierarchy(existing, output_path=mem_path)
-        return existing
+        if existing is not None and "events" in existing:
+            return existing
+        return video_memory.build_event_memory(
+            self.video_path, window_size=self.window_size, frame_interval=5.0
+        )
 
     # ---- main entry ----
 

@@ -49,7 +49,7 @@ def detect_model_path() -> str | None:
 # --- Inference defaults ------------------------------------------------------
 DEVICE_MAP = "auto"       # single-GPU friendly; "cuda:0" forces one GPU
 DTYPE = "auto"            # Qwen3-VL uses `dtype` (not `torch_dtype`); "auto" derives bf16 from weights
-MAX_NEW_TOKENS = 1024
+MAX_NEW_TOKENS = 2048
 DEFAULT_INTERVAL = 2.0
 
 # --- Temporal reasoning ------------------------------------------------------

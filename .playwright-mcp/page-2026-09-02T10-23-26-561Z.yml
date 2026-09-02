@@ -1,0 +1,18 @@
+- generic [ref=f3e3]:
+  - banner [ref=f3e4]:
+    - generic [ref=f3e5]: LongVideoAgent
+  - generic [ref=f3e8]:
+    - paragraph [ref=f3e35]: Preparing video memory…
+    - generic [ref=f3e16]:
+      - generic [ref=f3e18]:
+        - paragraph [ref=f3e19]: Ask about the video.
+        - paragraph [ref=f3e20]: e.g. “乔治第一次什么时候出现？”
+      - generic [ref=f3e21]:
+        - textbox "Upload a video first" [disabled] [ref=f3e22]
+        - button "Send" [disabled] [ref=f3e23]
+  - generic [ref=f3e25]:
+    - generic [ref=f3e26]:
+      - button "Evidence" [ref=f3e27] [cursor=pointer]
+      - button "Trace" [ref=f3e28] [cursor=pointer]
+      - button "Memory" [ref=f3e29] [cursor=pointer]
+    - generic [ref=f3e30]: No evidence yet.

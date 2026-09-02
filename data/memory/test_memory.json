@@ -1,173 +1,609 @@
 {
   "video_path": "/mnt/sda/zjx_space/agent/data/videos/test.mp4",
   "duration": 284.966667,
-  "window_size": 60,
-  "frame_interval": 10,
+  "window_size": 60.0,
+  "frame_interval": 5.0,
+  "events": [
+    {
+      "event_id": 0,
+      "start": 0.0,
+      "end": 10.0,
+      "summary": "佩奇和家人在户外，妈妈给佩奇一个礼物盒。",
+      "entities": [
+        "佩奇",
+        "妈妈",
+        "乔治",
+        "爸爸"
+      ],
+      "actions": [
+        "佩奇在草地上走动",
+        "妈妈和乔治、爸爸出现",
+        "妈妈递给佩奇一个紫色礼物盒"
+      ]
+    },
+    {
+      "event_id": 1,
+      "start": 10.0,
+      "end": 25.0,
+      "summary": "佩奇接过礼物盒，表情惊讶，妈妈微笑着看着她。",
+      "entities": [
+        "佩奇",
+        "妈妈"
+      ],
+      "actions": [
+        "佩奇接过礼物盒",
+        "佩奇惊讶地张大嘴巴",
+        "妈妈微笑地看着佩奇"
+      ]
+    },
+    {
+      "event_id": 2,
+      "start": 25.0,
+      "end": 55.0,
+      "summary": "佩奇开心地抱着礼物盒，妈妈在一旁鼓励她。",
+      "entities": [
+        "佩奇",
+        "妈妈"
+      ],
+      "actions": [
+        "佩奇开心地抱着礼物盒",
+        "佩奇笑得非常开心",
+        "妈妈鼓励佩奇"
+      ]
+    },
+    {
+      "event_id": 3,
+      "start": 60.0,
+      "end": 75.0,
+      "summary": "佩奇拿着一个紫色的礼物盒，乔治在旁边玩积木，佩奇把礼物盒放在地上。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "礼物盒",
+        "积木"
+      ],
+      "actions": [
+        "拿着",
+        "放"
+      ]
+    },
+    {
+      "event_id": 4,
+      "start": 80.0,
+      "end": 100.0,
+      "summary": "佩奇和乔治在房间里，佩奇拿着礼物盒，乔治站在一旁。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "礼物盒"
+      ],
+      "actions": [
+        "拿着",
+        "站立"
+      ]
+    },
+    {
+      "event_id": 5,
+      "start": 105.0,
+      "end": 120.0,
+      "summary": "佩奇和乔治在房间里，佩奇拿着礼物盒，乔治看着她，佩奇的表情从惊讶变为惊讶和困惑。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "礼物盒"
+      ],
+      "actions": [
+        "拿着",
+        "看着",
+        "表情变化"
+      ]
+    },
+    {
+      "event_id": 6,
+      "start": 120.0,
+      "end": 135.0,
+      "summary": "佩奇拿着一个紫色的星星盒子，爸爸猪先生拿着魔法棒站在她旁边。",
+      "entities": [
+        "佩奇",
+        "猪爸爸",
+        "紫色盒子",
+        "魔法棒"
+      ],
+      "actions": [
+        "佩奇拿着盒子",
+        "猪爸爸拿着魔法棒"
+      ]
+    },
+    {
+      "event_id": 7,
+      "start": 135.0,
+      "end": 155.0,
+      "summary": "佩奇开心地展示着她的礼物盒，猪爸爸看着她，表情从惊讶变为开心。",
+      "entities": [
+        "佩奇",
+        "猪爸爸",
+        "紫色盒子"
+      ],
+      "actions": [
+        "佩奇展示盒子",
+        "猪爸爸看着盒子并微笑"
+      ]
+    },
+    {
+      "event_id": 8,
+      "start": 155.0,
+      "end": 175.0,
+      "summary": "佩奇和猪爸爸一起看着盒子，佩奇露出灿烂的笑容，猪爸爸则显得非常惊讶。",
+      "entities": [
+        "佩奇",
+        "猪爸爸",
+        "紫色盒子"
+      ],
+      "actions": [
+        "佩奇微笑",
+        "猪爸爸惊讶地看着盒子"
+      ]
+    },
+    {
+      "event_id": 9,
+      "start": 175.0,
+      "end": 180.0,
+      "summary": "佩奇和乔治在客厅里，各自拿着一个礼物盒，妈妈猪妈妈坐在沙发上看着他们。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "猪妈妈",
+        "紫色盒子",
+        "蓝色盒子"
+      ],
+      "actions": [
+        "佩奇拿着盒子",
+        "乔治拿着盒子",
+        "猪妈妈看着他们"
+      ]
+    },
+    {
+      "event_id": 10,
+      "start": 180.0,
+      "end": 200.0,
+      "summary": "佩奇和乔治各自拿着一个礼物盒，佩奇看起来很不开心。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "礼物盒"
+      ],
+      "actions": [
+        "佩奇拿着紫色礼物盒",
+        "乔治拿着蓝色礼物盒",
+        "佩奇表情不悦"
+      ]
+    },
+    {
+      "event_id": 11,
+      "start": 200.0,
+      "end": 215.0,
+      "summary": "佩奇和乔治在父母面前展示礼物盒，佩奇依然不开心。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "猪爸爸",
+        "猪妈妈",
+        "礼物盒"
+      ],
+      "actions": [
+        "佩奇和乔治站在父母面前",
+        "猪爸爸和猪妈妈看着他们",
+        "佩奇表情不悦"
+      ]
+    },
+    {
+      "event_id": 12,
+      "start": 215.0,
+      "end": 235.0,
+      "summary": "佩奇打开紫色礼物盒，拿出小号，乔治打开蓝色礼物盒，拿出小鼓，两人开始演奏音乐。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "礼物盒",
+        "小号",
+        "小鼓"
+      ],
+      "actions": [
+        "佩奇打开礼物盒",
+        "佩奇拿出小号",
+        "乔治打开礼物盒",
+        "乔治拿出小鼓",
+        "佩奇和乔治开始演奏"
+      ]
+    },
+    {
+      "event_id": 13,
+      "start": 240.0,
+      "end": 245.0,
+      "summary": "佩奇和乔治玩猜猜盒子里有什么的游戏，乔治赢了。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "紫色盒子",
+        "青色盒子"
+      ],
+      "actions": [
+        "乔治拿着甜甜圈",
+        "佩奇看着盒子"
+      ]
+    },
+    {
+      "event_id": 14,
+      "start": 245.0,
+      "end": 250.0,
+      "summary": "佩奇看到乔治的盒子有甜甜圈，感到惊讶。",
+      "entities": [
+        "佩奇",
+        "乔治",
+        "青色盒子"
+      ],
+      "actions": [
+        "佩奇惊讶地张嘴",
+        "乔治开心地拿着甜甜圈"
+      ]
+    },
+    {
+      "event_id": 15,
+      "start": 250.0,
+      "end": 255.0,
+      "summary": "全家一起吃甜甜圈，爸爸和妈妈也开心地拿着甜甜圈。",
+      "entities": [
+        "爸爸",
+        "妈妈",
+        "佩奇",
+        "乔治",
+        "甜甜圈"
+      ],
+      "actions": [
+        "爸爸、妈妈、佩奇、乔治各自拿着甜甜圈"
+      ]
+    },
+    {
+      "event_id": 16,
+      "start": 255.0,
+      "end": 260.0,
+      "summary": "爸爸开心地吃甜甜圈，佩奇看着爸爸。",
+      "entities": [
+        "爸爸",
+        "佩奇",
+        "甜甜圈"
+      ],
+      "actions": [
+        "爸爸开心地吃甜甜圈",
+        "佩奇看着爸爸"
+      ]
+    },
+    {
+      "event_id": 17,
+      "start": 260.0,
+      "end": 265.0,
+      "summary": "佩奇惊讶地看着爸爸吃甜甜圈，嘴巴张开。",
+      "entities": [
+        "佩奇",
+        "爸爸",
+        "甜甜圈"
+      ],
+      "actions": [
+        "佩奇惊讶地张嘴",
+        "爸爸吃甜甜圈"
+      ]
+    },
+    {
+      "event_id": 18,
+      "start": 265.0,
+      "end": 270.0,
+      "summary": "全家一起开心地吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈。",
+      "entities": [
+        "爸爸",
+        "妈妈",
+        "佩奇",
+        "乔治",
+        "甜甜圈"
+      ],
+      "actions": [
+        "爸爸、妈妈、佩奇、乔治各自拿着甜甜圈"
+      ]
+    },
+    {
+      "event_id": 19,
+      "start": 270.0,
+      "end": 275.0,
+      "summary": "佩奇开心地吃甜甜圈，脸上露出笑容。",
+      "entities": [
+        "佩奇",
+        "甜甜圈"
+      ],
+      "actions": [
+        "佩奇开心地吃甜甜圈"
+      ]
+    },
+    {
+      "event_id": 20,
+      "start": 275.0,
+      "end": 280.0,
+      "summary": "全家一起开心地吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈。",
+      "entities": [
+        "爸爸",
+        "妈妈",
+        "佩奇",
+        "乔治",
+        "甜甜圈"
+      ],
+      "actions": [
+        "爸爸、妈妈、佩奇、乔治各自拿着甜甜圈"
+      ]
+    }
+  ],
   "segments": [
     {
       "segment_id": 0,
       "start": 0.0,
-      "end": 60.0,
-      "summary": "The video opens with the Peppa Pig logo, followed by scenes of Peppa's family outdoors, a title card for 'Secrets', and finally Peppa receiving a gift box from her mother inside their home.",
+      "end": 10.0,
+      "summary": "佩奇和家人在户外，妈妈给佩奇一个礼物盒。",
       "events": [
         {
           "timestamp": 0.0,
-          "description": "The Peppa Pig logo is displayed, featuring the character Peppa Pig standing on the title text against a light blue background."
-        },
-        {
-          "timestamp": 10.0,
-          "description": "Peppa Pig, her mother, and her little brother George are standing on a green lawn under a blue sky. Their father is partially visible on the right side of the frame."
-        },
-        {
-          "timestamp": 20.0,
-          "description": "A title card appears, showing a yellow house with the word 'Secrets' written in blue over it."
-        },
-        {
-          "timestamp": 30.0,
-          "description": "Inside their home, Peppa's mother, wearing an orange dress, presents a purple gift box decorated with pink stars to Peppa, who is wearing a red dress."
-        },
-        {
-          "timestamp": 40.0,
-          "description": "A close-up shot shows Peppa holding the purple gift box, looking at it with a surprised expression."
-        },
-        {
-          "timestamp": 50.0,
-          "description": "Peppa is now holding the gift box, smiling happily, while her mother stands beside her, also smiling."
+          "description": "佩奇和家人在户外，妈妈给佩奇一个礼物盒。 佩奇 妈妈 乔治 爸爸 佩奇在草地上走动 妈妈和乔治、爸爸出现 妈妈递给佩奇一个紫色礼物盒"
         }
       ]
     },
     {
       "segment_id": 1,
-      "start": 60.0,
-      "end": 120.0,
-      "summary": "Peppa Pig presents a purple gift box to her little brother George in their room, and he reacts with surprise and delight.",
+      "start": 10.0,
+      "end": 25.0,
+      "summary": "佩奇接过礼物盒，表情惊讶，妈妈微笑着看着她。",
       "events": [
         {
-          "timestamp": 60.0,
-          "description": "Peppa Pig stands in her room holding a purple gift box with pink stars, smiling at her brother George who is playing with blocks and a toy dinosaur."
-        },
-        {
-          "timestamp": 70.0,
-          "description": "Peppa's expression changes to one of concern or confusion as she looks at George, who is now smiling and looking at her, while the toy dinosaur stands nearby."
-        },
-        {
-          "timestamp": 80.0,
-          "description": "Peppa is now alone in the room, having placed the gift box on the floor. She smiles and gestures with her hands, appearing to be talking to someone off-screen."
-        },
-        {
-          "timestamp": 90.0,
-          "description": "Peppa is standing in a doorway, holding the gift box up and looking surprised or shocked, as George stands beside her looking up at her."
-        },
-        {
-          "timestamp": 100.0,
-          "description": "Peppa is smiling broadly while holding the gift box, looking pleased and happy."
-        },
-        {
-          "timestamp": 110.0,
-          "description": "Peppa is holding the gift box up again, looking surprised, as George stands beside her with a happy expression, ready to receive the gift."
+          "timestamp": 10.0,
+          "description": "佩奇接过礼物盒，表情惊讶，妈妈微笑着看着她。 佩奇 妈妈 佩奇接过礼物盒 佩奇惊讶地张大嘴巴 妈妈微笑地看着佩奇"
         }
       ]
     },
     {
       "segment_id": 2,
-      "start": 120.0,
-      "end": 180.0,
-      "summary": "Peppa Pig is shown with a surprised expression, followed by scenes of her father presenting her with a magic wand and a gift box, and later, Peppa and her little brother George showing their gift boxes to their mother in the living room.",
+      "start": 25.0,
+      "end": 55.0,
+      "summary": "佩奇开心地抱着礼物盒，妈妈在一旁鼓励她。",
       "events": [
         {
-          "timestamp": 120.0,
-          "description": "Peppa Pig looks up with a surprised expression, her mouth slightly open."
-        },
-        {
-          "timestamp": 130.0,
-          "description": "Peppa Pig's father, wearing glasses, holds a magic wand and stands next to Peppa, who is holding a purple gift box with stars."
-        },
-        {
-          "timestamp": 140.0,
-          "description": "Peppa's father smiles widely, looking very happy and excited."
-        },
-        {
-          "timestamp": 150.0,
-          "description": "Peppa looks at her father with a wide-open mouth, appearing surprised or excited about the gift box."
-        },
-        {
-          "timestamp": 160.0,
-          "description": "Peppa's father looks down with a surprised expression, his mouth slightly open."
-        },
-        {
-          "timestamp": 170.0,
-          "description": "Peppa and her little brother George stand in the living room, each holding a gift box (Peppa's is purple, George's is teal), and show them to their mother who is sitting in a chair."
+          "timestamp": 25.0,
+          "description": "佩奇开心地抱着礼物盒，妈妈在一旁鼓励她。 佩奇 妈妈 佩奇开心地抱着礼物盒 佩奇笑得非常开心 妈妈鼓励佩奇"
         }
       ]
     },
     {
       "segment_id": 3,
-      "start": 180.0,
-      "end": 240.0,
-      "summary": "Peppa Pig and her brother George are playing with two gift boxes, and later they are seen playing musical instruments.",
+      "start": 60.0,
+      "end": 75.0,
+      "summary": "佩奇拿着一个紫色的礼物盒，乔治在旁边玩积木，佩奇把礼物盒放在地上。",
       "events": [
         {
-          "timestamp": 180.0,
-          "description": "George Pig is standing next to a teal gift box with yellow stars, smiling and looking at it."
-        },
-        {
-          "timestamp": 190.0,
-          "description": "Peppa Pig appears next to George, holding a purple gift box with pink stars. George is still holding his teal box."
-        },
-        {
-          "timestamp": 200.0,
-          "description": "Peppa Pig looks sad or disappointed while holding her purple box, while George continues to smile with his teal box."
-        },
-        {
-          "timestamp": 210.0,
-          "description": "Peppa Pig looks surprised or shocked, with her mouth open, while holding her purple box."
-        },
-        {
-          "timestamp": 220.0,
-          "description": "Peppa Pig and George are standing next to their respective boxes. Peppa looks concerned, and George looks downcast or sad."
-        },
-        {
-          "timestamp": 230.0,
-          "description": "Peppa Pig is playing a trumpet, and George is playing a drum, both smiling and enjoying themselves."
+          "timestamp": 60.0,
+          "description": "佩奇拿着一个紫色的礼物盒，乔治在旁边玩积木，佩奇把礼物盒放在地上。 佩奇 乔治 礼物盒 积木 拿着 放"
         }
       ]
     },
     {
       "segment_id": 4,
+      "start": 80.0,
+      "end": 100.0,
+      "summary": "佩奇和乔治在房间里，佩奇拿着礼物盒，乔治站在一旁。",
+      "events": [
+        {
+          "timestamp": 80.0,
+          "description": "佩奇和乔治在房间里，佩奇拿着礼物盒，乔治站在一旁。 佩奇 乔治 礼物盒 拿着 站立"
+        }
+      ]
+    },
+    {
+      "segment_id": 5,
+      "start": 105.0,
+      "end": 120.0,
+      "summary": "佩奇和乔治在房间里，佩奇拿着礼物盒，乔治看着她，佩奇的表情从惊讶变为惊讶和困惑。",
+      "events": [
+        {
+          "timestamp": 105.0,
+          "description": "佩奇和乔治在房间里，佩奇拿着礼物盒，乔治看着她，佩奇的表情从惊讶变为惊讶和困惑。 佩奇 乔治 礼物盒 拿着 看着 表情变化"
+        }
+      ]
+    },
+    {
+      "segment_id": 6,
+      "start": 120.0,
+      "end": 135.0,
+      "summary": "佩奇拿着一个紫色的星星盒子，爸爸猪先生拿着魔法棒站在她旁边。",
+      "events": [
+        {
+          "timestamp": 120.0,
+          "description": "佩奇拿着一个紫色的星星盒子，爸爸猪先生拿着魔法棒站在她旁边。 佩奇 猪爸爸 紫色盒子 魔法棒 佩奇拿着盒子 猪爸爸拿着魔法棒"
+        }
+      ]
+    },
+    {
+      "segment_id": 7,
+      "start": 135.0,
+      "end": 155.0,
+      "summary": "佩奇开心地展示着她的礼物盒，猪爸爸看着她，表情从惊讶变为开心。",
+      "events": [
+        {
+          "timestamp": 135.0,
+          "description": "佩奇开心地展示着她的礼物盒，猪爸爸看着她，表情从惊讶变为开心。 佩奇 猪爸爸 紫色盒子 佩奇展示盒子 猪爸爸看着盒子并微笑"
+        }
+      ]
+    },
+    {
+      "segment_id": 8,
+      "start": 155.0,
+      "end": 175.0,
+      "summary": "佩奇和猪爸爸一起看着盒子，佩奇露出灿烂的笑容，猪爸爸则显得非常惊讶。",
+      "events": [
+        {
+          "timestamp": 155.0,
+          "description": "佩奇和猪爸爸一起看着盒子，佩奇露出灿烂的笑容，猪爸爸则显得非常惊讶。 佩奇 猪爸爸 紫色盒子 佩奇微笑 猪爸爸惊讶地看着盒子"
+        }
+      ]
+    },
+    {
+      "segment_id": 9,
+      "start": 175.0,
+      "end": 180.0,
+      "summary": "佩奇和乔治在客厅里，各自拿着一个礼物盒，妈妈猪妈妈坐在沙发上看着他们。",
+      "events": [
+        {
+          "timestamp": 175.0,
+          "description": "佩奇和乔治在客厅里，各自拿着一个礼物盒，妈妈猪妈妈坐在沙发上看着他们。 佩奇 乔治 猪妈妈 紫色盒子 蓝色盒子 佩奇拿着盒子 乔治拿着盒子 猪妈妈看着他们"
+        }
+      ]
+    },
+    {
+      "segment_id": 10,
+      "start": 180.0,
+      "end": 200.0,
+      "summary": "佩奇和乔治各自拿着一个礼物盒，佩奇看起来很不开心。",
+      "events": [
+        {
+          "timestamp": 180.0,
+          "description": "佩奇和乔治各自拿着一个礼物盒，佩奇看起来很不开心。 佩奇 乔治 礼物盒 佩奇拿着紫色礼物盒 乔治拿着蓝色礼物盒 佩奇表情不悦"
+        }
+      ]
+    },
+    {
+      "segment_id": 11,
+      "start": 200.0,
+      "end": 215.0,
+      "summary": "佩奇和乔治在父母面前展示礼物盒，佩奇依然不开心。",
+      "events": [
+        {
+          "timestamp": 200.0,
+          "description": "佩奇和乔治在父母面前展示礼物盒，佩奇依然不开心。 佩奇 乔治 猪爸爸 猪妈妈 礼物盒 佩奇和乔治站在父母面前 猪爸爸和猪妈妈看着他们 佩奇表情不悦"
+        }
+      ]
+    },
+    {
+      "segment_id": 12,
+      "start": 215.0,
+      "end": 235.0,
+      "summary": "佩奇打开紫色礼物盒，拿出小号，乔治打开蓝色礼物盒，拿出小鼓，两人开始演奏音乐。",
+      "events": [
+        {
+          "timestamp": 215.0,
+          "description": "佩奇打开紫色礼物盒，拿出小号，乔治打开蓝色礼物盒，拿出小鼓，两人开始演奏音乐。 佩奇 乔治 礼物盒 小号 小鼓 佩奇打开礼物盒 佩奇拿出小号 乔治打开礼物盒 乔治拿出小鼓 佩奇和乔治开始演奏"
+        }
+      ]
+    },
+    {
+      "segment_id": 13,
       "start": 240.0,
-      "end": 284.966,
-      "summary": "Peppa Pig and her family are shown enjoying donuts together in their living room.",
+      "end": 245.0,
+      "summary": "佩奇和乔治玩猜猜盒子里有什么的游戏，乔治赢了。",
       "events": [
         {
           "timestamp": 240.0,
-          "description": "Peppa Pig, wearing a red dress, looks at a purple box with a surprised expression while her brother George, in a blue shirt, happily holds a donut next to a teal box."
-        },
+          "description": "佩奇和乔治玩猜猜盒子里有什么的游戏，乔治赢了。 佩奇 乔治 紫色盒子 青色盒子 乔治拿着甜甜圈 佩奇看着盒子"
+        }
+      ]
+    },
+    {
+      "segment_id": 14,
+      "start": 245.0,
+      "end": 250.0,
+      "summary": "佩奇看到乔治的盒子有甜甜圈，感到惊讶。",
+      "events": [
+        {
+          "timestamp": 245.0,
+          "description": "佩奇看到乔治的盒子有甜甜圈，感到惊讶。 佩奇 乔治 青色盒子 佩奇惊讶地张嘴 乔治开心地拿着甜甜圈"
+        }
+      ]
+    },
+    {
+      "segment_id": 15,
+      "start": 250.0,
+      "end": 255.0,
+      "summary": "全家一起吃甜甜圈，爸爸和妈妈也开心地拿着甜甜圈。",
+      "events": [
         {
           "timestamp": 250.0,
-          "description": "Peppa's mother holds a plate with three donuts, and Peppa and George are each holding one, while their father stands beside them, all smiling."
-        },
+          "description": "全家一起吃甜甜圈，爸爸和妈妈也开心地拿着甜甜圈。 爸爸 妈妈 佩奇 乔治 甜甜圈 爸爸、妈妈、佩奇、乔治各自拿着甜甜圈"
+        }
+      ]
+    },
+    {
+      "segment_id": 16,
+      "start": 255.0,
+      "end": 260.0,
+      "summary": "爸爸开心地吃甜甜圈，佩奇看着爸爸。",
+      "events": [
+        {
+          "timestamp": 255.0,
+          "description": "爸爸开心地吃甜甜圈，佩奇看着爸爸。 爸爸 佩奇 甜甜圈 爸爸开心地吃甜甜圈 佩奇看着爸爸"
+        }
+      ]
+    },
+    {
+      "segment_id": 17,
+      "start": 260.0,
+      "end": 265.0,
+      "summary": "佩奇惊讶地看着爸爸吃甜甜圈，嘴巴张开。",
+      "events": [
         {
           "timestamp": 260.0,
-          "description": "A close-up shot shows Peppa Pig, wearing her red dress, smiling as she holds a donut."
-        },
+          "description": "佩奇惊讶地看着爸爸吃甜甜圈，嘴巴张开。 佩奇 爸爸 甜甜圈 佩奇惊讶地张嘴 爸爸吃甜甜圈"
+        }
+      ]
+    },
+    {
+      "segment_id": 18,
+      "start": 265.0,
+      "end": 270.0,
+      "summary": "全家一起开心地吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈。",
+      "events": [
+        {
+          "timestamp": 265.0,
+          "description": "全家一起开心地吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈。 爸爸 妈妈 佩奇 乔治 甜甜圈 爸爸、妈妈、佩奇、乔治各自拿着甜甜圈"
+        }
+      ]
+    },
+    {
+      "segment_id": 19,
+      "start": 270.0,
+      "end": 275.0,
+      "summary": "佩奇开心地吃甜甜圈，脸上露出笑容。",
+      "events": [
         {
           "timestamp": 270.0,
-          "description": "The family is all together again. Peppa's father, wearing glasses, holds a donut up with a big smile, while Peppa, her mother, and George also hold donuts and smile."
-        },
+          "description": "佩奇开心地吃甜甜圈，脸上露出笑容。 佩奇 甜甜圈 佩奇开心地吃甜甜圈"
+        }
+      ]
+    },
+    {
+      "segment_id": 20,
+      "start": 275.0,
+      "end": 280.0,
+      "summary": "全家一起开心地吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈。",
+      "events": [
         {
-          "timestamp": 280.0,
-          "description": "The family continues to enjoy their donuts. Peppa's father and mother are still smiling, and Peppa and George are also holding their donuts and appear happy."
+          "timestamp": 275.0,
+          "description": "全家一起开心地吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈。 爸爸 妈妈 佩奇 乔治 甜甜圈 爸爸、妈妈、佩奇、乔治各自拿着甜甜圈"
         }
       ]
     }
   ],
-  "global_summary": "The video opens with the Peppa Pig logo and scenes of Peppa's family outdoors, leading into a title card for 'Secrets' and Peppa receiving a gift box from her mother. Peppa then presents a purple gift box to her little brother George, who reacts with excitement. Peppa is surprised when her father gives her a magic wand and another gift box, and later she and George show their gifts to their mother in the living room. The siblings play with their gift boxes and musical instruments, and the video concludes with the family enjoying donuts together in the living room.",
+  "global_summary": "In this heartwarming video, Peppa Pig and her family gather to celebrate a special occasion centered around gift-giving. Peppa receives a purple star-shaped gift box from her mother, initially expressing surprise and delight, while her father, Daddy Pig, joins in with a magical wand, adding to the festive atmosphere. As Peppa and her little brother George open their gifts — Peppa finds a small trumpet, and George discovers a drum — they begin playing music together. The mood shifts slightly when Peppa appears disappointed, but the family’s joy quickly returns when George’s gift reveals a delicious donut, leading to a sweet, shared snack for everyone. The video concludes with the entire family happily enjoying donuts together, capturing the warmth, humor, and togetherness that define Peppa Pig’s world.",
   "chapters": [
     {
       "chapter_id": 0,
       "start": 0.0,
-      "end": 120.0,
-      "summary": "Peppa receives a gift box from her mother and presents it to her brother George, who reacts with surprise and delight.",
+      "end": 25.0,
+      "summary": "佩奇在户外收到妈妈送的礼物盒，表情惊讶，妈妈微笑看着她。",
+      "event_ids": [
+        0,
+        1
+      ],
       "segment_ids": [
         0,
         1
@@ -175,29 +611,130 @@
     },
     {
       "chapter_id": 1,
-      "start": 120.0,
-      "end": 180.0,
-      "summary": "Peppa is surprised as her father gives her a magic wand and a gift box, and later she and George show their gift boxes to their mother.",
+      "start": 25.0,
+      "end": 75.0,
+      "summary": "佩奇开心抱着礼物盒，随后在室内将礼物盒放在地上，乔治在一旁玩积木。",
+      "event_ids": [
+        2,
+        3
+      ],
       "segment_ids": [
-        2
-      ]
-    },
-    {
-      "chapter_id": 2,
-      "start": 180.0,
-      "end": 240.0,
-      "summary": "Peppa and George play with two gift boxes and later engage in playing musical instruments together.",
-      "segment_ids": [
+        2,
         3
       ]
     },
     {
-      "chapter_id": 3,
-      "start": 240.0,
-      "end": 284.966,
-      "summary": "Peppa and her family enjoy donuts together in the living room.",
+      "chapter_id": 2,
+      "start": 80.0,
+      "end": 120.0,
+      "summary": "佩奇和乔治在房间，佩奇拿着礼物盒，乔治看着她，佩奇表情从惊讶转为困惑。",
+      "event_ids": [
+        4,
+        5
+      ],
       "segment_ids": [
-        4
+        4,
+        5
+      ]
+    },
+    {
+      "chapter_id": 3,
+      "start": 120.0,
+      "end": 155.0,
+      "summary": "佩奇拿着紫色星星盒子，猪爸爸拿着魔法棒，佩奇开心展示礼物盒，猪爸爸从惊讶转为开心。",
+      "event_ids": [
+        6,
+        7
+      ],
+      "segment_ids": [
+        6,
+        7
+      ]
+    },
+    {
+      "chapter_id": 4,
+      "start": 155.0,
+      "end": 180.0,
+      "summary": "佩奇和猪爸爸一起看盒子，佩奇笑容灿烂，猪爸爸惊讶；随后佩奇和乔治在客厅各自拿着礼物盒，妈妈在沙发上看他们。",
+      "event_ids": [
+        8,
+        9
+      ],
+      "segment_ids": [
+        8,
+        9
+      ]
+    },
+    {
+      "chapter_id": 5,
+      "start": 180.0,
+      "end": 215.0,
+      "summary": "佩奇和乔治各自拿着礼物盒，佩奇看起来不开心，两人在父母面前展示礼物盒，佩奇仍不开心。",
+      "event_ids": [
+        10,
+        11
+      ],
+      "segment_ids": [
+        10,
+        11
+      ]
+    },
+    {
+      "chapter_id": 6,
+      "start": 215.0,
+      "end": 245.0,
+      "summary": "佩奇打开紫色盒子拿出小号，乔治打开蓝色盒子拿出小鼓，两人开始演奏；随后玩猜猜盒子里有什么，乔治赢了。",
+      "event_ids": [
+        12,
+        13
+      ],
+      "segment_ids": [
+        12,
+        13
+      ]
+    },
+    {
+      "chapter_id": 7,
+      "start": 245.0,
+      "end": 255.0,
+      "summary": "佩奇看到乔治的盒子有甜甜圈，感到惊讶；全家一起吃甜甜圈，父母也开心地拿着甜甜圈。",
+      "event_ids": [
+        14,
+        15
+      ],
+      "segment_ids": [
+        14,
+        15
+      ]
+    },
+    {
+      "chapter_id": 8,
+      "start": 255.0,
+      "end": 265.0,
+      "summary": "爸爸开心吃甜甜圈，佩奇看着爸爸；佩奇惊讶地看着爸爸吃甜甜圈，嘴巴张开。",
+      "event_ids": [
+        16,
+        17
+      ],
+      "segment_ids": [
+        16,
+        17
+      ]
+    },
+    {
+      "chapter_id": 9,
+      "start": 265.0,
+      "end": 280.0,
+      "summary": "全家一起开心吃甜甜圈，爸爸、妈妈、佩奇、乔治都拿着甜甜圈，佩奇开心吃甜甜圈，脸上露出笑容。",
+      "event_ids": [
+        18,
+        19,
+        20
+      ],
+      "segment_ids": [
+        18,
+        19,
+        20
       ]
     }
   ]

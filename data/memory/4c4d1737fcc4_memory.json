@@ -1,0 +1,204 @@
+{
+  "video_path": "/mnt/sda/zjx_space/agent/data/videos/4c4d1737fcc4.mp4",
+  "duration": 284.966667,
+  "window_size": 60.0,
+  "frame_interval": 10.0,
+  "segments": [
+    {
+      "segment_id": 0,
+      "start": 0.0,
+      "end": 60.0,
+      "summary": "Peppa Pig and her family are shown, and Peppa receives a purple gift box from her mother in their living room.",
+      "events": [
+        {
+          "timestamp": 0.0,
+          "description": "The Peppa Pig logo is displayed, featuring the character Peppa Pig standing on the title text against a blue background."
+        },
+        {
+          "timestamp": 10.0,
+          "description": "Peppa Pig, her mother, and her little brother George are standing outside on a grassy field under a blue sky. Their father is partially visible on the right."
+        },
+        {
+          "timestamp": 20.0,
+          "description": "A title card shows the word 'Secrets' in blue text over a yellow house with a window, suggesting the theme of the episode."
+        },
+        {
+          "timestamp": 30.0,
+          "description": "Inside their living room, Peppa's mother, wearing an orange dress, presents a purple gift box with pink stars to Peppa, who is wearing a red dress."
+        },
+        {
+          "timestamp": 40.0,
+          "description": "A close-up shot shows Peppa holding the purple gift box, looking at it with a surprised expression."
+        },
+        {
+          "timestamp": 50.0,
+          "description": "Peppa is holding the gift box, smiling happily. Her mother stands beside her, smiling and gesturing as if talking to her."
+        }
+      ]
+    },
+    {
+      "segment_id": 1,
+      "start": 60.0,
+      "end": 120.0,
+      "summary": "Peppa Pig presents a purple gift box to her little brother George in their playroom, and he reacts with surprise.",
+      "events": [
+        {
+          "timestamp": 60.0,
+          "description": "Peppa Pig, wearing a red dress, stands in her playroom holding a purple gift box with pink stars. Her brother George, in a blue shirt, sits on the floor playing with alphabet blocks and a green dinosaur toy."
+        },
+        {
+          "timestamp": 70.0,
+          "description": "Peppa looks down at the box with a slightly concerned or thoughtful expression, while George continues to play and smile."
+        },
+        {
+          "timestamp": 80.0,
+          "description": "Peppa turns and walks toward the corner of the room, placing the gift box on the floor. George is no longer visible in the frame."
+        },
+        {
+          "timestamp": 90.0,
+          "description": "Peppa turns back to face George, who is now standing in the doorway. She holds the box up and looks at him with a surprised expression, her mouth open."
+        },
+        {
+          "timestamp": 100.0,
+          "description": "Peppa smiles happily while holding the gift box, looking pleased with herself."
+        },
+        {
+          "timestamp": 110.0,
+          "description": "Peppa presents the box to George again, who now has a happy, smiling expression, indicating he is excited about the gift."
+        }
+      ]
+    },
+    {
+      "segment_id": 2,
+      "start": 120.0,
+      "end": 180.0,
+      "summary": "Peppa Pig is surprised to see her father, Daddy Pig, holding a magic wand and a gift box, and later, she and her little brother George present their own boxes to their mother, Mummy Pig.",
+      "events": [
+        {
+          "timestamp": 120.0,
+          "description": "Peppa Pig looks up with a surprised expression, her mouth slightly open."
+        },
+        {
+          "timestamp": 130.0,
+          "description": "Daddy Pig, wearing glasses, holds a magic wand and stands next to Peppa, who is holding a purple gift box. They are in a room with a staircase in the background."
+        },
+        {
+          "timestamp": 140.0,
+          "description": "A close-up of Daddy Pig's face, showing him smiling happily with his eyes wide open."
+        },
+        {
+          "timestamp": 150.0,
+          "description": "Peppa looks up at Daddy Pig with a wide-open mouth, appearing surprised or excited as she holds the purple gift box."
+        },
+        {
+          "timestamp": 160.0,
+          "description": "A close-up of Daddy Pig's face, now with a surprised expression, his mouth slightly open."
+        },
+        {
+          "timestamp": 170.0,
+          "description": "Peppa and her little brother George stand in a living room with their mother, Mummy Pig. Peppa holds her purple box and George holds a green box, both smiling as they present them to their mother."
+        }
+      ]
+    },
+    {
+      "segment_id": 3,
+      "start": 180.0,
+      "end": 240.0,
+      "summary": "Peppa Pig and her little brother George are shown with gift boxes, and later they are seen playing musical instruments together.",
+      "events": [
+        {
+          "timestamp": 180.0,
+          "description": "George, wearing a blue shirt, stands next to a light blue gift box decorated with yellow stars, smiling."
+        },
+        {
+          "timestamp": 190.0,
+          "description": "Peppa, wearing a red dress, stands next to George. She is holding a purple gift box with pink stars, while George holds his light blue box."
+        },
+        {
+          "timestamp": 200.0,
+          "description": "Peppa looks sad or upset while holding her purple box, while George continues to smile with his light blue box."
+        },
+        {
+          "timestamp": 210.0,
+          "description": "Peppa looks surprised or shocked, with her mouth wide open, while holding her purple gift box."
+        },
+        {
+          "timestamp": 220.0,
+          "description": "Peppa and George stand side-by-side with their respective gift boxes. Peppa looks concerned, and George looks downcast or sad."
+        },
+        {
+          "timestamp": 230.0,
+          "description": "Peppa is playing a yellow trumpet, and George is playing a red drum, both smiling and enjoying themselves."
+        }
+      ]
+    },
+    {
+      "segment_id": 4,
+      "start": 240.0,
+      "end": 284.966,
+      "summary": "Peppa Pig and her family are shown enjoying donuts together in their living room, with the children initially playing a game before being joined by their parents.",
+      "events": [
+        {
+          "timestamp": 240.0,
+          "description": "Peppa Pig and her little brother George stand in front of two colorful boxes. George is holding a donut and smiling, while Peppa looks on with a surprised or questioning expression."
+        },
+        {
+          "timestamp": 250.0,
+          "description": "Peppa Pig's mother holds a plate with three donuts, and George holds one donut. Peppa and her father are also present, all smiling and looking happy."
+        },
+        {
+          "timestamp": 260.0,
+          "description": "A close-up shot shows Peppa Pig happily holding a donut in her hand."
+        },
+        {
+          "timestamp": 270.0,
+          "description": "Peppa Pig's father, mother, Peppa, and George are all holding donuts and smiling. The father is laughing with his mouth open."
+        },
+        {
+          "timestamp": 280.0,
+          "description": "The family is still holding their donuts, and everyone is smiling and laughing together, enjoying their snack."
+        }
+      ]
+    }
+  ],
+  "global_summary": "In this episode of Peppa Pig, Peppa receives a purple gift box from her mother, which she later presents to her little brother George, who is surprised. Peppa is also delighted to see her father, Daddy Pig, holding a magic wand and a gift box. The children then present their own gift boxes to their mother, Mummy Pig. Afterward, Peppa and George play musical instruments together before the whole family gathers in the living room to enjoy donuts, with the children initially playing a game before being joined by their parents.",
+  "chapters": [
+    {
+      "chapter_id": 0,
+      "start": 0.0,
+      "end": 120.0,
+      "summary": "Peppa receives a purple gift box from her mother and later presents it to her brother George, who reacts with surprise.",
+      "segment_ids": [
+        0,
+        1
+      ]
+    },
+    {
+      "chapter_id": 1,
+      "start": 120.0,
+      "end": 180.0,
+      "summary": "Peppa is surprised to see her father holding a magic wand and a gift box, and later she and George present their own boxes to their mother.",
+      "segment_ids": [
+        2
+      ]
+    },
+    {
+      "chapter_id": 2,
+      "start": 180.0,
+      "end": 240.0,
+      "summary": "Peppa and George are shown with gift boxes and later playing musical instruments together.",
+      "segment_ids": [
+        3
+      ]
+    },
+    {
+      "chapter_id": 3,
+      "start": 240.0,
+      "end": 284.966,
+      "summary": "Peppa and her family enjoy donuts together in their living room, with the children initially playing a game before being joined by their parents.",
+      "segment_ids": [
+        4
+      ]
+    }
+  ]
+}

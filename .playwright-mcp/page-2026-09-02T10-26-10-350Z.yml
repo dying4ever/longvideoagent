@@ -1,0 +1,82 @@
+- generic [ref=f3e3]:
+  - banner [ref=f3e4]:
+    - generic [ref=f3e5]: LongVideoAgent
+    - generic [ref=f3e36]:
+      - generic [ref=f3e37]: session 47f14df96074
+      - button "Reset" [ref=f3e38] [cursor=pointer]
+  - generic [ref=f3e8]:
+    - generic [ref=f3e9]: 04:44
+    - generic [ref=f3e16]:
+      - generic [ref=f3e17]:
+        - generic [ref=f3e41]:
+          - generic [ref=f3e42]: You
+          - generic [ref=f3e43]: 乔治第一次什么时候出现？
+        - generic [ref=f3e50]:
+          - generic [ref=f3e51]: Agent
+          - generic [ref=f3e52]: 首次出现时间约在 6.0s
+          - button "⏱ 00:06" [ref=f3e54] [cursor=pointer]
+          - generic [ref=f3e55]:
+            - button "00:00 · 画面显示的是小猪佩奇站在蓝色背景的标题上，没有乔治。" [ref=f3e56] [cursor=pointer]
+            - button "00:03 · 画面显示的是小猪佩奇站在草地上，没有乔治。" [ref=f3e57] [cursor=pointer]
+            - button "00:06 · 在第6秒的帧中，乔治（穿着蓝色衣服的小猪）首次出现在画面中，站在佩奇的右侧。" [ref=f3e58] [cursor=pointer]
+      - generic [ref=f3e21]:
+        - textbox "Ask about the video…" [ref=f3e40]
+        - button "Send" [disabled] [ref=f3e23]
+  - generic [ref=f3e25]:
+    - generic [ref=f3e26]:
+      - button "Evidence" [ref=f3e27] [cursor=pointer]
+      - button "Trace" [active] [ref=f3e28] [cursor=pointer]
+      - button "Memory" [ref=f3e29] [cursor=pointer]
+    - generic [ref=f3e72]:
+      - generic [ref=f3e73]:
+        - generic [ref=f3e74]: "01"
+        - generic [ref=f3e75]: temporal_parser
+        - generic [ref=f3e76]: type=FIRST
+      - generic [ref=f3e77]:
+        - generic [ref=f3e78]: "02"
+        - generic [ref=f3e79]: planner
+        - generic [ref=f3e80]: ground_video 尚未发现任何 occurrence，需全范围搜索
+      - generic [ref=f3e81]:
+        - generic [ref=f3e82]: "03"
+        - generic [ref=f3e83]: grounding
+        - generic [ref=f3e84]: 1 candidate(s)
+      - generic [ref=f3e85]:
+        - generic [ref=f3e86]: "04"
+        - generic [ref=f3e87]: reasoning
+        - button "01:00–02:00" [ref=f3e89] [cursor=pointer]
+      - generic [ref=f3e90]:
+        - generic [ref=f3e91]: "05"
+        - generic [ref=f3e92]: temporal_verifier
+        - generic [ref=f3e93]: … 候选 78.0s，但 [0,78.0) 尚未排查
+      - generic [ref=f3e94]:
+        - generic [ref=f3e95]: "06"
+        - generic [ref=f3e96]: planner
+        - generic [ref=f3e97]: inspect_interval 候选 78.0s，但 [0,78.0) 尚未排查
+      - generic [ref=f3e98]:
+        - generic [ref=f3e99]: "07"
+        - generic [ref=f3e100]: reasoning
+        - button "00:00–01:18" [ref=f3e102] [cursor=pointer]
+      - generic [ref=f3e103]:
+        - generic [ref=f3e104]: "08"
+        - generic [ref=f3e105]: temporal_verifier
+        - generic [ref=f3e106]: … 候选 6.0s，但 [0,6.0) 尚未排查
+      - generic [ref=f3e107]:
+        - generic [ref=f3e108]: "09"
+        - generic [ref=f3e109]: planner
+        - generic [ref=f3e110]: inspect_interval 候选 6.0s，但 [0,6.0) 尚未排查
+      - generic [ref=f3e111]:
+        - generic [ref=f3e112]: "10"
+        - generic [ref=f3e113]: reasoning
+        - button "00:00–00:06" [ref=f3e115] [cursor=pointer]
+      - generic [ref=f3e116]:
+        - generic [ref=f3e117]: "11"
+        - generic [ref=f3e118]: temporal_verifier
+        - generic [ref=f3e119]: ✓ 前缀 [0,6.0) 已确认不存在更早 occurrence
+      - generic [ref=f3e120]:
+        - generic [ref=f3e121]: "12"
+        - generic [ref=f3e122]: planner
+        - generic [ref=f3e123]: verify_answer 前缀 [0,6.0) 已确认不存在更早 occurrence
+      - generic [ref=f3e124]:
+        - generic [ref=f3e125]: "13"
+        - generic [ref=f3e126]: critic
+        - generic [ref=f3e127]: ✓ The evidence at 6.0s clearly shows George (wearing blue clothes) appearing for the first time in the video, standing to the right of Peppa. This directly supports the answer that George first appears around 6.0s. No visual contradiction exists, and the confidence is warranted by the visual evidence provided.

@@ -27,6 +27,7 @@ def _mem():
         "duration": 285.0,
         "global_summary": "佩奇一家",
         "chapters": [],
+        "events": [],
         "segments": [
             {"segment_id": i, "start": i * 60.0, "end": (i + 1) * 60.0, "summary": f"s{i}", "events": []}
             for i in range(5)
