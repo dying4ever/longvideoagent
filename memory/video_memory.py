@@ -266,8 +266,7 @@ def segment_events(
             break
         prompt = _build_event_prompt(frames, window_start, window_end, carry)
         result = vlm_tool.analyze_frames(
-            frames, prompt, model=model.model, processor=model.processor,
-            max_new_tokens=config.SEGMENT_MAX_NEW_TOKENS,
+            frames, prompt, model=model.model, processor=model.processor
         )
         for ev in result.get("events", []):
             try:

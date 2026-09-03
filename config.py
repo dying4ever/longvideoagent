@@ -57,7 +57,6 @@ DEFAULT_INTERVAL = 2.0
 # (fine_interval) still localizes precisely over these segments.
 SEGMENT_WINDOW_SIZE = 180.0
 SEGMENT_FRAME_INTERVAL = 20.0
-SEGMENT_MAX_NEW_TOKENS = 512
 
 # --- Temporal reasoning ------------------------------------------------------
 # Occurrences closer than this (seconds) are merged into one occurrence cluster,
