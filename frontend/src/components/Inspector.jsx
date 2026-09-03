@@ -77,21 +77,122 @@ function ProcessPane({ trace, onSeek }) {
   if (!trace || trace.length === 0) {
     return <Empty text="No trace yet." />;
   }
+  const { context, rounds } = groupTrace(trace);
   return (
-    <div className="pipeline">
-      {trace.map((entry, i) => (
-        <div key={i} className="pipeline-step">
-          <div className={`pipeline-node ${statusOf(entry)}`}>
-            <span className="pipeline-dot" />
-          </div>
-          <div className="pipeline-content">
-            <span className="pipeline-agent">{entry.agent}</span>
-            <span className="pipeline-summary">{summarize(entry, onSeek)}</span>
-          </div>
+    <div className="trace-workflow">
+      {context.length > 0 && (
+        <div className="trace-context">
+          <span className="trace-context-label">QUERY UNDERSTANDING</span>
+          {context.map((entry, i) => (
+            <span className="trace-context-item" key={i}>{summarize(entry, onSeek)}</span>
+          ))}
         </div>
-      ))}
+      )}
+      {rounds.map((round, roundIndex) => {
+        const failed = round.entries.some((e) => isChecker(e) && e.sufficient === false);
+        const passed = round.entries.some((e) => isChecker(e) && e.sufficient === true);
+        const hasNext = roundIndex < rounds.length - 1;
+        const state = failed && hasNext ? 'replan' : failed ? 'review' : passed ? 'passed' : 'running';
+        return (
+          <React.Fragment key={round.number}>
+            <section className={`trace-round ${state}`}>
+              <header className="trace-round-head">
+                <div><span>ROUND {round.number}</span><b>{roundGoal(round.entries)}</b></div>
+                <em>{roundStatusLabel(state)}</em>
+              </header>
+              <div className="trace-agent-flow">
+                {round.entries.map((entry, i) => (
+                  <React.Fragment key={`${entry.step}-${i}`}>
+                    {i > 0 && <span className="trace-arrow">→</span>}
+                    <div className={`trace-agent-card ${entry.agent} ${statusOf(entry)}`}>
+                      <div className="trace-agent-top">
+                        <span>{agentShortName(entry.agent)}</span>
+                        <i>STEP {entry.step || i + 1}</i>
+                      </div>
+                      <b>{agentDisplayName(entry.agent)}</b>
+                      <div className="trace-agent-summary">{summarize(entry, onSeek)}</div>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </section>
+            {state === 'replan' && (
+              <div className="replan-bridge">
+                <span>证据不足</span><b>REPLAN · 扩大范围并重新观察</b><i>↓</i>
+              </div>
+            )}
+          </React.Fragment>
+        );
+      })}
+      <div className={`trace-outcome ${tracePassed(trace) ? 'passed' : 'pending'}`}>
+        <span>{tracePassed(trace) ? '✓' : '…'}</span>
+        <div>
+          <small>FINAL CHECK</small>
+          <b>{tracePassed(trace) ? '证据验证通过，可以生成答案' : '已完成当前轮次，保留可追溯证据'}</b>
+        </div>
+      </div>
     </div>
   );
+}
+
+function groupTrace(trace) {
+  const context = [];
+  const rounds = [];
+  let inferredRound = 0;
+  let current = null;
+  trace.forEach((entry) => {
+    if (entry.agent === 'temporal_parser' || entry.agent === 'context_resolver') {
+      context.push(entry);
+      return;
+    }
+    let number = Number(entry.iteration || 0);
+    if (!number) {
+      if (entry.agent === 'planner' || !current) inferredRound += 1;
+      number = inferredRound || 1;
+    }
+    if (!current || current.number !== number) {
+      current = { number, entries: [] };
+      rounds.push(current);
+    }
+    current.entries.push(entry);
+  });
+  return { context, rounds };
+}
+
+function isChecker(entry) {
+  return entry.agent === 'temporal_verifier' || entry.agent === 'critic';
+}
+
+function tracePassed(trace) {
+  return [...trace].reverse().some((entry) => isChecker(entry) && entry.sufficient === true);
+}
+
+function roundGoal(entries) {
+  const plan = entries.find((entry) => entry.agent === 'planner');
+  return ({
+    ground_video: '在视频记忆中定位相关区间',
+    inspect_interval: '回看指定区间的原始画面',
+    verify_answer: '检查当前证据是否足够',
+    finish: '整理证据并输出答案',
+  })[plan?.action] || '基于上下文完成视觉观察';
+}
+
+function roundStatusLabel(state) {
+  return ({ replan: '需要重规划', review: '证据待补充', passed: '验证通过', running: '观察完成' })[state];
+}
+
+function agentShortName(agent) {
+  return ({ planner: 'PLAN', grounding: 'GROUND', reasoning: 'REASON', temporal_verifier: 'VERIFY', critic: 'CRITIC' })[agent] || 'AGENT';
+}
+
+function agentDisplayName(agent) {
+  return ({
+    planner: 'Planner 规划',
+    grounding: 'Visual Grounding',
+    reasoning: 'Visual Reasoning',
+    temporal_verifier: 'Temporal Verifier',
+    critic: 'Visual Critic',
+  })[agent] || agent;
 }
 
 function statusOf(entry) {
@@ -103,20 +204,26 @@ function statusOf(entry) {
 }
 
 function summarize(entry, onSeek) {
-  if (entry.agent === 'planner') return `${entry.action} ${entry.reason || ''}`;
-  if (entry.agent === 'grounding') return `${(entry.candidates || []).length} candidate(s)`;
+  if (entry.agent === 'planner') return entry.reason || `执行 ${entry.action}`;
+  if (entry.agent === 'grounding') {
+    const candidates = entry.candidates || [];
+    if (!candidates.length) return '未找到候选区间';
+    const top = candidates[0];
+    return `${candidates.length} 个候选 · 首选 ${api.formatTime(top.start)}–${api.formatTime(top.end)}`;
+  }
   if (entry.agent === 'reasoning') {
     const iv = entry.interval;
     return iv ? (
       <button className="chip" onClick={() => onSeek(iv[0])}>
         {api.formatTime(iv[0])}–{api.formatTime(iv[1])}
       </button>
-    ) : 'reasoning';
+    ) : '观察候选画面';
   }
-  if (entry.agent === 'temporal_verifier') return `${entry.sufficient ? '✓' : '…'} ${entry.reason || ''}`;
-  if (entry.agent === 'critic') return `${entry.sufficient ? '✓' : '✗'} ${entry.reason || ''}`;
-  if (entry.agent === 'temporal_parser') return `type=${entry.type}`;
-  if (entry.agent === 'context_resolver') return 'resolve';
+  if (entry.agent === 'temporal_verifier') return `${entry.sufficient ? '时间覆盖充分' : '时间覆盖不足'} · ${entry.reason || ''}`;
+  if (entry.agent === 'critic') return `${entry.sufficient ? '视觉证据可信' : '视觉证据不足'} · ${entry.reason || ''}`;
+  if (entry.agent === 'temporal_parser') return `时间意图：${entry.type || 'NORMAL'}`;
+  if (entry.agent === 'context_resolver') return entry.reference_timestamp != null
+    ? `复用参考时间：${api.formatTime(entry.reference_timestamp)}` : '已解析对话上下文';
   return '';
 }
 

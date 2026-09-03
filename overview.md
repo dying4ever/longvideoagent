@@ -31,6 +31,17 @@
 - **MemDreamer** — 层次化 Memory + 自适应事件切分（非固定窗口）
 - **StreamAgent** — 短期 Working Memory + 持续更新上下文
 
+### 借鉴与扩展边界
+
+| 来源 | 继承的思想 | 本工程新增或强化的部分 |
+|---|---|---|
+| LongVideoAgent | 多 Agent、Grounding、视觉观察、迭代推理 | 独立 Temporal Verifier、Visual Critic、可视化 Round/Replan、多轮 Session |
+| StreamAgent | Working Memory、持续上下文 | 指代消解、当前主体、参考事件和已确认时间点复用 |
+| MemDreamer | 层次化记忆、事件组织 | Global→Chapter→Event→Evidence 与原始帧回看、内容哈希缓存结合 |
+| 本工程 | 系统组合与任务扩展 | 六类显式时序验证、OpenClaw Skill、Web/CLI/API 共用核心 Session |
+
+本工程定位为**面向交互式长视频理解的系统扩展与工程实现**。当前未复现官方 GRPO 训练，不把多 Agent、Working Memory 或层次化记忆本身作为原创，也不声称性能超过官方模型。
+
 ---
 
 ## 二、已实现功能

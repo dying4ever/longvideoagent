@@ -40,9 +40,10 @@ export default function App() {
       const s = await api.createSession(v.video_id);
       setSessionId(s.session_id);
       setDuration(s.duration);
+      const mem = await api.getMemory(s.session_id);
       setStage(null);
       setMessages([]);
-      setMemory(null);
+      setMemory(mem);
       setTrace([]);
     } catch (e) {
       setError(e.message);
@@ -62,7 +63,18 @@ export default function App() {
       const r = await api.ask(sessionId, question);
       setMessages((m) => [
         ...m,
-        { role: 'agent', content: r.answer, evidence: r.evidence, trace: r.trace, timestamp: r.timestamp },
+        {
+          role: 'agent',
+          content: r.answer,
+          evidence: r.evidence,
+          trace: r.trace,
+          timestamp: r.timestamp,
+          originalQuestion: question,
+          resolvedQuestion: r.resolved_question,
+          temporalType: r.temporal_type,
+          referenceTimestamp: r.reference_timestamp,
+          workingMemory: r.working_memory,
+        },
       ]);
       setTrace(r.trace || []);
       setActiveTab('evidence');

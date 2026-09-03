@@ -9,6 +9,24 @@
   → Planner → Grounding → Reasoning → Temporal Verifier → Critic → (Replan) → Answer
 ```
 
+## 与参考工作的关系及本项目扩展
+
+本项目是面向**多轮交互式长视频理解**的系统扩展，不将参考论文中的已有方法表述为原创。三项参考工作分别提供 Agent 循环、流式工作记忆和层次化视频记忆思路，本项目的贡献在于把它们组合为一个可运行、可验证、可部署的闭环系统。
+
+| 参考工作 | 借鉴内容 | 本项目的具体扩展 |
+|---|---|---|
+| [LongVideoAgent](https://github.com/longvideoagent/LongVideoAgent) | Master 调度 Grounding/Vision 的多轮推理范式 | 拆分 Planner、Visual Grounding、Visual Reasoning、Temporal Verifier、Visual Critic；增加多轮 Session 和显式 Replan 轨迹 |
+| StreamAgent | 持续更新上下文与短期 Working Memory | 增加人物指代消解、当前主体、参考事件和已确认时间点复用 |
+| MemDreamer | 层次化视频记忆和事件组织 | 构建 Global → Chapter → Event → Evidence，并与原始帧回看和内容哈希缓存结合 |
+| **本项目系统扩展** | — | FIRST/LAST/REPEAT/BEFORE/AFTER/ALWAYS 显式时序验证；OpenClaw Skill；Web UI 中展示解析结果、Round/Agent/Replan 和时间证据 |
+
+### 贡献边界
+
+- 多 Agent 推理框架、Working Memory 和层次化记忆分别来源于上述参考工作；本项目的重点是面向交互任务的组合、扩展与工程落地。
+- 当前没有复现官方 GRPO 强化学习训练，也不声称准确率超过官方模型。
+- OpenClaw 负责 Skill 发现、意图路由和适配器调用；内部视觉闭环由同一个 `LongVideoAgentSession` 执行。
+- Web UI 直接调用 FastAPI；CLI 与 OpenClaw Skill 通过 `openclaw_adapter.py` 复用相同核心 Session。
+
 ---
 
 ## 目录结构
@@ -117,13 +135,15 @@ for t in tests/test_*.py; do python "$t"; done
 ### 7. OpenClaw Skill
 
 ```bash
+source /home/ps/.nvm/nvm.sh
+nvm use 22.23.2
 cd openclaw-cli
 ./node_modules/.bin/openclaw skills list          # 确认 long-video-agent 被发现
 ./node_modules/.bin/openclaw agent --local -m "分析视频 /mnt/sda/zjx_space/agent/data/videos/test.mp4：乔治第一次什么时候出现？"
 ```
 
 > OpenClaw 通过 skill → `openclaw_adapter.py` CLI → `LongVideoAgentSession` → Qwen3-VL 运行。
-> 需 Node 22（nvm）已装 openclaw（`openclaw-cli/`），模型用 DeepSeek API（`DEEPSEEK_API_KEY`）。
+> OpenClaw 2026.8.2 需 Node >= 22.22.3；本机已安装 Node 22.23.2。控制模型使用 DeepSeek API（`DEEPSEEK_API_KEY`），视觉理解使用本地 Qwen3-VL。
 
 ---
 

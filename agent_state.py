@@ -33,7 +33,14 @@ class AgentState:
         return self._step
 
     def add_trace(self, agent: str, **kwargs: Any) -> None:
-        entry = {"step": self._next_step(), "agent": agent}
+        # ``iteration`` is public execution metadata used by the UI to render
+        # Planner -> Grounding -> Reasoning -> Critic as visible rounds.
+        # It is not hidden chain-of-thought.
+        entry = {
+            "step": self._next_step(),
+            "iteration": self.iteration,
+            "agent": agent,
+        }
         entry.update(kwargs)
         self.trace.append(entry)
 

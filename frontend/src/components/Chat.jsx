@@ -1,6 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as api from '../api.js';
 
+const TEMPORAL_LABELS = {
+  NORMAL: '普通内容理解',
+  FIRST: '第一次 · FIRST',
+  LAST: '最后一次 · LAST',
+  REPEAT: '再次出现 · REPEAT',
+  BEFORE: '事件之前 · BEFORE',
+  AFTER: '事件之后 · AFTER',
+  ALWAYS: '全程状态 · ALWAYS',
+};
+
 export default function Chat({ messages, busy, onAsk, onSeek, disabled }) {
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
@@ -29,6 +39,9 @@ export default function Chat({ messages, busy, onAsk, onSeek, disabled }) {
           <div key={i} className={`msg ${m.role}`}>
             <div className="msg-label">{m.role === 'user' ? '你的问题' : 'Agent 回答'}</div>
             <div className="msg-content">{m.content || '…'}</div>
+            {m.role === 'agent' && (
+              <UnderstandingCard message={m} onSeek={onSeek} />
+            )}
             {m.role === 'agent' && m.timestamp != null && (
               <div className="msg-timestamp">
                 <button className="chip" onClick={() => onSeek(m.timestamp)}>
@@ -71,6 +84,56 @@ export default function Chat({ messages, busy, onAsk, onSeek, disabled }) {
           发送
         </button>
       </form>
+    </div>
+  );
+}
+
+function UnderstandingCard({ message, onSeek }) {
+  const resolved = message.resolvedQuestion || message.originalQuestion;
+  const changed = resolved && message.originalQuestion && resolved !== message.originalQuestion;
+  const subject = message.workingMemory?.current_subject;
+  const referenceEvent = message.workingMemory?.reference_event?.event;
+  const referenceTimestamp = message.referenceTimestamp;
+
+  if (!resolved && !message.temporalType && referenceTimestamp == null) return null;
+
+  return (
+    <div className={`understanding-card ${changed ? 'has-resolution' : ''}`}>
+      <div className="understanding-title">
+        <span>CONTEXT RESOLVER</span>
+        <b>{changed ? '已理解上下文' : '语义解析完成'}</b>
+      </div>
+      <div className="understanding-grid">
+        {changed && (
+          <div className="understanding-row wide">
+            <small>指代解析</small>
+            <span className="question-transform">
+              <del>{message.originalQuestion}</del><i>→</i><strong>{resolved}</strong>
+            </span>
+          </div>
+        )}
+        {subject && (
+          <div className="understanding-row">
+            <small>当前主体</small><strong>{subject}</strong>
+          </div>
+        )}
+        {message.temporalType && (
+          <div className="understanding-row">
+            <small>时间类型</small>
+            <strong>{TEMPORAL_LABELS[message.temporalType] || message.temporalType}</strong>
+          </div>
+        )}
+        {referenceEvent && (
+          <div className="understanding-row">
+            <small>复用事件</small><strong>{referenceEvent}</strong>
+          </div>
+        )}
+        {referenceTimestamp != null && (
+          <button className="understanding-row reference-time" onClick={() => onSeek(referenceTimestamp)}>
+            <small>参考时间</small><strong>{api.formatTime(referenceTimestamp)} ↗</strong>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
